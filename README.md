@@ -1,4 +1,4 @@
-# Weather Index Insurance Crop platform
+# Weather Index Insurance platform
 
 Weather index crop insurance Dapp
 
@@ -9,3 +9,4 @@ Weather index crop insurance Dapp
 - `FastAPI` and `Uvicorn` - backend
 - `MySQL` - database 
 - `PhpMyAdmin` - database management
+- `Nginx` - web server

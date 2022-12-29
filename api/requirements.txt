@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+pydantic
+pymysql[rsa]
+sqlalchemy
+starlette
+pandas
+numpy
