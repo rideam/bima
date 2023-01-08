@@ -3,6 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import RedirectResponse
 from .routes import router
 
+from . import models
+from .db import engine
+
+models.Base.metadata.create_all(bind=engine)
+
 description = """
 Weather crop index insurance API
 

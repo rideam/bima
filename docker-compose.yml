@@ -1,32 +1,54 @@
 version: '3.8'
 
 services:
+#  db:
+#    platform: linux/x86_64
+#    image: mysql:8.0
+#    container_name: bimadb
+#    ports:
+#      - "3307:3306"
+#    volumes:
+#      - ./db/init:/docker-entrypoint-initdb.d
+#      - ./db/data:/var/lib/mysql
+#    environment:
+#      - MYSQL_USER=dbuser
+#      - MYSQL_PASSWORD=dbpassword
+#      - MYSQL_ROOT_PASSWORD=password
+#      - MYSQL_DATABASE=project
+#      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
   db:
-    platform: linux/x86_64
-    image: mysql:8.0
+    image: postgres:15.1
     container_name: bimadb
     ports:
-      - "3307:3306"
-    volumes:
-      - ./db/init:/docker-entrypoint-initdb.d
-      - ./db/data:/var/lib/mysql
+      - "5432:5432"
+#    expose:
+#      - 5432
     environment:
-      - MYSQL_USER=dbuser
-      - MYSQL_PASSWORD=dbpassword
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_DATABASE=project
-      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - POSTGRES_USER=tatenda
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=project
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: bimaphpmyadmin
+  admin:
+    image: adminer
+    container_name: bimaadminer
+#    restart: always
     depends_on:
       - db
-    environment:
-      - PMA_HOST=db
-      - MYSQL_ROOT_PASSWORD=root
     ports:
-      - "8080:80"
+      - "8080:8080"
+
+#  phpmyadmin:
+#    image: phpmyadmin/phpmyadmin
+#    container_name: bimaphpmyadmin
+#    depends_on:
+#      - db
+#    environment:
+#      - PMA_HOST=db
+#      - MYSQL_ROOT_PASSWORD=root
+#    ports:
+#      - "8080:80"
 
   api:
     build: ./api
@@ -34,7 +56,9 @@ services:
     expose:
       - 5001
     environment:
-      - DATABASE_URL=mysql+pymysql://root:password@bimadb/project
+#      - DATABASE_URL=mysql+pymysql://root:password@bimadb/project
+      - DATABASE_URL=postgresql+psycopg2://tatenda:password@db:5432/project
+      - SECRET_KEY=0a45e366e9429bac88d86a3557087f7f1baa447e83f04ea0f04e00095b8d86fe
     volumes:
       - ./api:/app
     command: uvicorn src.main:app --reload --host 0.0.0.0 --port 5001
@@ -60,3 +84,6 @@ services:
     ports:
       - "5001:5001"
       - "8000:80"
+
+volumes:
+  postgres_data:

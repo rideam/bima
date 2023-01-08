@@ -6,3 +6,4 @@ sqlalchemy
 starlette
 pandas
 numpy
+psycopg2

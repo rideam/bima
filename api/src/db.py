@@ -6,9 +6,10 @@ from sqlalchemy.orm import sessionmaker
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 # DATABASE_URL = "mysql+pymysql://tatenda:tatenda1@127.0.0.1:3306/project"
+engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False,
                             autoflush=False,
-                            bind=create_engine(DATABASE_URL))
+                            bind= engine)
 
 Base = declarative_base()
 
