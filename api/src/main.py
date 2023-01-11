@@ -2,11 +2,13 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import RedirectResponse
 from .routes import router
+from .db import init_db
 
-from . import models
-from .db import engine
 
-models.Base.metadata.create_all(bind=engine)
+# from . import models
+# from .db import engine
+#
+# models.Base.metadata.create_all(bind=engine)
 
 description = """
 Weather crop index insurance API
@@ -41,6 +43,9 @@ app.add_middleware(
 
 app.include_router(router)
 
+@app.on_event("startup")
+def on_startup():
+    init_db()
 
 @app.get("/", include_in_schema=False)
 def home():

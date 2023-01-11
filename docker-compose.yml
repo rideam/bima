@@ -1,23 +1,8 @@
 version: '3.8'
 
 services:
-#  db:
-#    platform: linux/x86_64
-#    image: mysql:8.0
-#    container_name: bimadb
-#    ports:
-#      - "3307:3306"
-#    volumes:
-#      - ./db/init:/docker-entrypoint-initdb.d
-#      - ./db/data:/var/lib/mysql
-#    environment:
-#      - MYSQL_USER=dbuser
-#      - MYSQL_PASSWORD=dbpassword
-#      - MYSQL_ROOT_PASSWORD=password
-#      - MYSQL_DATABASE=project
-#      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
   db:
-    image: postgres:15.1
+    image: postgres:13-alpine
     container_name: bimadb
     ports:
       - "5432:5432"
@@ -33,30 +18,19 @@ services:
   admin:
     image: adminer
     container_name: bimaadminer
-#    restart: always
     depends_on:
       - db
     ports:
       - "8080:8080"
 
-#  phpmyadmin:
-#    image: phpmyadmin/phpmyadmin
-#    container_name: bimaphpmyadmin
-#    depends_on:
-#      - db
-#    environment:
-#      - PMA_HOST=db
-#      - MYSQL_ROOT_PASSWORD=root
-#    ports:
-#      - "8080:80"
 
   api:
     build: ./api
+    image: bimaapi
     container_name: bimaapi
     expose:
       - 5001
     environment:
-#      - DATABASE_URL=mysql+pymysql://root:password@bimadb/project
       - DATABASE_URL=postgresql+psycopg2://tatenda:password@db:5432/project
       - SECRET_KEY=0a45e366e9429bac88d86a3557087f7f1baa447e83f04ea0f04e00095b8d86fe
     volumes:
@@ -67,6 +41,7 @@ services:
 
   ui:
     build: ./ui
+    image: bimaui
     container_name: bimaui
     volumes:
       - ./ui:/app
@@ -76,6 +51,7 @@ services:
 
   nginx:
     build: ./nginx
+    image: bimanginx
     container_name: bimanginx
     depends_on:
       - db

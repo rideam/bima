@@ -4,14 +4,18 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-# DATABASE_URL = "mysql+pymysql://tatenda:tatenda1@127.0.0.1:3306/project"
-engine = create_engine(DATABASE_URL)
+database_url = os.getenv("DATABASE_URL")
+# database_url = "mysql+pymysql://tatenda:tatenda1@127.0.0.1:3306/project"
+engine = create_engine(database_url)
 SessionLocal = sessionmaker(autocommit=False,
                             autoflush=False,
-                            bind= engine)
+                            bind=engine)
 
 Base = declarative_base()
+
+
+def init_db():
+    Base.metadata.create_all(bind=engine)
 
 
 def get_db():

@@ -3,10 +3,6 @@ from sqlalchemy import BigInteger, CHAR, Column, DateTime, Float, Index, Integer
 from .db import Base
 from sqlalchemy.orm import relationship
 
-# from sqlalchemy.ext.declarative import declarative_base
-# Base = declarative_base()
-metadata = Base.metadata
-
 
 class Farmer(Base):
     __tablename__ = 'farmers'
