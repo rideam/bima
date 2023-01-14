@@ -1,7 +1,7 @@
 <template>
-  <div :class="containerClass" @click="onWrapperClick">
+  <div :class="containerClass" @click="onWrapperClick" v-if="isLoggedIn">
     <AppTopBar @menu-toggle="onMenuToggle" />
-    <div class="layout-sidebar" @click="onSidebarClick">
+    <div class="layout-sidebar" @click="onSidebarClick" v-if="layoutMode !== 'overlay'">
       <AppMenu :model="menu" @menuitem-click="onMenuItemClick" />
     </div>
 
@@ -20,25 +20,28 @@
       ></div>
     </transition>
   </div>
+  <LandingPage v-else />
 </template>
 
 <script>
+import LandingPage from "@/views/LandingPage.vue";
 import AppTopBar from "./components/app/AppTopbar.vue";
 import AppMenu from "./components/app/AppMenu.vue";
 import AppConfig from "./components/app/AppConfig.vue";
 import AppFooter from "./components/app/AppFooter.vue";
+import { useUsersStore } from "@/stores/user";
 
 export default {
   emits: ["change-theme"],
   data() {
     return {
-      layoutMode: "static",
+      layoutMode: "overlay",
       staticMenuInactive: false,
       overlayMenuActive: false,
       mobileMenuActive: false,
       menu: [
         {
-          label: "",
+          label: "Dashboard",
           items: [
             {
               label: "Home",
@@ -47,8 +50,39 @@ export default {
             },
           ],
         },
+        /*{
+          label: "Farmers",
+          items: [
+            {
+              label: "Farm Details",
+              icon: "pi pi-fw pi-home",
+              to: "/empty",
+            },
+          ],
+        },*/
       ],
     };
+  },
+  setup() {
+    const userStore = useUsersStore();
+
+
+
+
+
+    return {
+      userStore,
+    };
+  },
+
+  mounted() {
+    // console.log(JSON.stringify(this.menu))
+
+        console.log(this.userStore.getUser());
+    // console.log(userStore.getUser().access_level.type);
+    if(this.userStore.getUser()) {
+      this.menu =  JSON.parse( this.userStore.getUser()).access_level.menu;
+    }
   },
   watch: {
     $route() {
@@ -125,6 +159,9 @@ export default {
     },*/
   },
   computed: {
+    isLoggedIn: function () {
+      return this.userStore.isAuthenticated;
+    },
     containerClass() {
       return [
         "layout-wrapper",
@@ -151,6 +188,7 @@ export default {
     else this.removeClass(document.body, "body-overflow-hidden");
   },
   components: {
+    LandingPage,
     AppTopBar: AppTopBar,
     AppMenu: AppMenu,
     AppConfig: AppConfig,

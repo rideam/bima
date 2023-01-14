@@ -1,9 +1,15 @@
 fastapi
 uvicorn
 pydantic
-pymysql[rsa]
 sqlalchemy
 starlette
 pandas
 numpy
 psycopg2
+tortoise-orm
+aerich
+asyncpg
+passlib
+bcrypt
+python-jose
+python-multipart

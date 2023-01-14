@@ -71,7 +71,7 @@
         </div>
       </div>-->
 
-      <h5>Sidebar</h5>
+<!--      <h5>Sidebar</h5>
       <div class="p-formgroup-inline">
         <div class="field-radiobutton">
           <RadioButton
@@ -93,7 +93,7 @@
           />
           <label for="overlay">Overlay</label>
         </div>
-      </div>
+      </div>-->
     </div>
   </div>
 </template>

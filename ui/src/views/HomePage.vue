@@ -1,7 +1,10 @@
 <template>
   <Toast position="top-right" />
   <div class="grid">
-    <div class="col-12">
+
+
+
+<!--    <div class="col-12">
       <div class="grid grid-nogutter text-800">
         <div
           class="col-12 md:col-6 p-6 text-center md:text-left flex align-items-center"
@@ -48,10 +51,7 @@
                       <span class="p-inputgroup-addon">
                         <i class="pi pi-user"></i>
                       </span>
-                      <InputText
-                        placeholder="First Name"
-                        v-model="firstname"
-                      />
+                      <InputText placeholder="First Name" v-model="firstname" />
                     </div>
                   </div>
 
@@ -60,10 +60,7 @@
                       <span class="p-inputgroup-addon">
                         <i class="pi pi-user"></i>
                       </span>
-                      <InputText
-                        placeholder="Surname"
-                        v-model="surname"
-                      />
+                      <InputText placeholder="Surname" v-model="surname" />
                     </div>
                   </div>
 
@@ -72,10 +69,7 @@
                       <span class="p-inputgroup-addon">
                         <i class="pi pi-map"></i>
                       </span>
-                      <InputText
-                        placeholder="Farm Name"
-                        v-model="farmname"
-                      />
+                      <InputText placeholder="Farm Name" v-model="farmname" />
                     </div>
                   </div>
 
@@ -127,8 +121,8 @@
                   v-for="msg of message"
                   :severity="msg.severity"
                   :key="msg.content"
-                  >{{ msg.content }}</Message
-                >
+                  >{{ msg.content }}
+                </Message>
               </transition-group>
             </div>
           </section>
@@ -144,12 +138,13 @@
           />
         </div>
       </div>
-    </div>
+    </div>-->
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import { useUsersStore } from "@/stores/user";
 
 export default {
   name: "HomePage",
@@ -164,7 +159,20 @@ export default {
       memberid: null,
       dataLoaded: false,
       message: [],
+
     };
+  },
+  setup() {
+    const userStore = useUsersStore();
+
+    return {
+      userStore,
+    };
+  },
+  computed: {
+    isLoggedIn: function () {
+      return this.userStore.isAuthenticated;
+    },
   },
   methods: {
     heroImage() {
@@ -223,6 +231,11 @@ export default {
           console.log(err.message);
           this.errorToast("Error", "Registration error");
         });
+    },
+
+    async logout() {
+      await this.userStore.dispatch("logOut");
+      // this.$router.push('/login');
     },
   },
 };

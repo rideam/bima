@@ -1,11 +1,22 @@
 import { createApp, reactive } from "vue";
 import { createPinia } from "pinia";
+import { useUsersStore } from "@/stores/user";
 import axios from "axios";
 
 import router from "./router";
 
-axios.defaults.withCredentials = false;
+axios.defaults.withCredentials = true;
 axios.defaults.baseURL = "http://localhost:5001/";
+axios.interceptors.response.use(undefined, function (error) {
+  if (error) {
+    const originalRequest = error.config;
+    if (error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      useUsersStore().logOut();
+      return router.push("/login");
+    }
+  }
+});
 
 import ECharts from "vue-echarts";
 import { use } from "echarts/core";

@@ -31,11 +31,13 @@ services:
     expose:
       - 5001
     environment:
-      - DATABASE_URL=postgresql+psycopg2://tatenda:password@db:5432/project
+#      - DATABASE_URL=postgresql+psycopg2://tatenda:password@db:5432/project
+      - DATABASE_URL=postgres://tatenda:password@db:5432/project
       - SECRET_KEY=0a45e366e9429bac88d86a3557087f7f1baa447e83f04ea0f04e00095b8d86fe
     volumes:
       - ./api:/app
-    command: uvicorn src.main:app --reload --host 0.0.0.0 --port 5001
+    command: bash -c "aerich upgrade && uvicorn src.main:app --reload --host 0.0.0.0 --port 5001"
+#    command: bash -c "uvicorn src.main:app --reload --host 0.0.0.0 --port 5001"
     depends_on:
       - db
 

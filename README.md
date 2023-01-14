@@ -7,6 +7,6 @@ Weather index crop insurance Dapp
 - `Docker` and `Docker-compose` - building the project
 - `Vue3` and `Vite` - frontend
 - `FastAPI` and `Uvicorn` - backend
-- `MySQL` - database 
-- `PhpMyAdmin` - database management
+- `PostgreSQL` - database 
+- `Adminer` - database management
 - `Nginx` - web server

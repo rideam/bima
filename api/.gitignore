@@ -1,3 +1,5 @@
 venv/
 .env
 start.sh
+upgrade.sh
+migrations/

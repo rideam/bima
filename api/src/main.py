@@ -1,14 +1,22 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import RedirectResponse
-from .routes import router
-from .db import init_db
 
+from tortoise import Tortoise
+from src.database.register import register_tortoise
+from src.database.config import TORTOISE_ORM
 
-# from . import models
-# from .db import engine
-#
-# models.Base.metadata.create_all(bind=engine)
+Tortoise.init_models(["src.database.models"], "models")
+
+from src.routes import \
+    users, \
+    weather, \
+    regions, \
+    crops, \
+    farmers, \
+    farms, \
+    strike_events, \
+    policies
 
 description = """
 Weather crop index insurance API
@@ -17,12 +25,36 @@ Weather crop index insurance API
 
 tags_metadata = [
     {
-        "name": "Function",
-        "description": "Get index data and peform calculations to get statistics"
+        "name": "Auth",
+        "description": "User Authentication"
     },
     {
-        "name": "Utilities",
-        "description": "Utility routes for other needed information"
+        "name": "Region",
+        "description": "Region data"
+    },
+    {
+        "name": "Crop",
+        "description": "Crop data"
+    },
+    {
+        "name": "Farm",
+        "description": "Farm data"
+    },
+    {
+        "name": "Weather",
+        "description": "Weather data"
+    },
+    {
+        "name": "StrikeEvent",
+        "description": "StrikeEvent data"
+    },
+    {
+        "name": "Policy",
+        "description": "Policy data"
+    },
+    {
+        "name": "User",
+        "description": "User actions"
     }
 ]
 
@@ -41,11 +73,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(router)
+app.include_router(users.router)
+app.include_router(weather.router)
+app.include_router(regions.router)
+app.include_router(crops.router)
+app.include_router(farmers.router)
+app.include_router(farms.router)
+app.include_router(strike_events.router)
+app.include_router(policies.router)
 
-@app.on_event("startup")
-def on_startup():
-    init_db()
+register_tortoise(app, config=TORTOISE_ORM, generate_schemas=False)
+
 
 @app.get("/", include_in_schema=False)
 def home():
