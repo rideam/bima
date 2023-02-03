@@ -1,0 +1,19 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="mt-4">
+        <h4>Account pass phrase</h4>
+        <table class="table">
+            <tbody>
+            <tr>
+                <td><b>phrase:</b></td>
+                <td>{{ passphrase }}</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td class="text-danger">Note this down and keep it secret!</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

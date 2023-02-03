@@ -1,0 +1,43 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+    <div class="mt-4">
+        <h3>Policy</h3>
+        <table class="table">
+            <tbody>
+            <tr>
+                <td colspan="2">start</td>
+                <td>01/01/2023</td>
+            </tr>
+            <tr>
+                <td colspan="2">end</td>
+                <td>30/12/2023</td>
+            </tr>
+            <tr>
+                <td colspan="2">Description</td>
+                <td>Cover Maize Crop, 100 hectare, to be paid 1 Algo</td>
+            </tr>
+
+            <tr>
+                <td colspan="2">Strike Event</td>
+                <td>Temperature: 45 C, Humidity 10 %, Soil Moisture 2%</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="mt-4">
+        <h4>Sign and Join</h4>
+        <form action="{{ url_for('main_bp.enrol') }}" method="post">
+            {{ form.csrf_token }}
+
+            <div class="mt-4"> {{ form.signature.label }}
+                <br/>
+            {{ form.signature(value=signature, readonly=True) }}</div>
+
+            <br>
+            {{ form.submit }}
+        </form>
+
+    </div>
+{% endblock %}

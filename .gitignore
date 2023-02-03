@@ -1,0 +1,9 @@
+venv
+node_modules
+.env
+
+application/.env
+serverless.yml
+package-lock.json
+package.json
+.idea
