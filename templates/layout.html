@@ -5,10 +5,16 @@
     <meta charset='utf-8'/>
 
     <link href="{{ url_for('static', filename='img/favicon.ico') }}" rel="shortcut icon">
+    {#<link rel="stylesheet" type="text/css"
+          href="{{ url_for('static', filename='css/bootstrap.min.css', _external=True, _scheme='http') }}">#}
+    <link href="{{ url_for('static',filename='bootstrap/bootstrap4/swatch/{swatch}/bootstrap.min.css'.format(swatch=config.get('FLASK_ADMIN_SWATCH', 'default'))) }}"
+          rel="stylesheet">
+    {% if config.get('FLASK_ADMIN_SWATCH', 'default') == 'default' %}
+        <link href="{{ url_for('static',filename='bootstrap/bootstrap4/css/bootstrap-theme.min.css') }}"
+              rel="stylesheet">
+    {% endif %}
     <link rel="stylesheet" type="text/css"
-          href="{{ url_for('static', filename='css/bootstrap.min.css', _external=True, _scheme='http') }}">
-    <link rel="stylesheet" type="text/css"
-          href="{{ url_for('static', filename='css/style.css', _external=True, _scheme='http') }}">
+          href="{{ url_for('static', filename='css/style.css') }}">
 
     <title>Index Insurance</title>
 
@@ -19,16 +25,20 @@
 <body>
 <header></header>
 
-{% include 'nav.html' %}
 
-<div class="container">
-    {% block content %} {% endblock %}
+<div class="container my-3">
+    {% include 'nav.html' %}
+
+    <div class="mx-2">
+        {% block content %} {% endblock %}
+    </div>
+
 </div>
 
 <script type="text/javascript"
-        src="{{ url_for('static', filename='js/jquery.min.js', _external=True, _scheme='http') }}"></script>
+        src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
 <script type="text/javascript"
-        src="{{ url_for('static', filename='js/bootstrap.min.js', _external=True, _scheme='http') }}"></script>
+        src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
 
 {% block scripts %} {% endblock %}
 

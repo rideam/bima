@@ -1,43 +1,155 @@
 {% extends 'layout.html' %}
 
+{% block style %}
+    <style>
+        .row-highlighted {
+            background-color: #f0f3f5;
+        }
+    </style>
+{% endblock style %}
+
 {% block content %}
-
     <div class="mt-4">
-        <h3>Policy</h3>
-        <table class="table">
-            <tbody>
-            <tr>
-                <td colspan="2">start</td>
-                <td>01/01/2023</td>
-            </tr>
-            <tr>
-                <td colspan="2">end</td>
-                <td>30/12/2023</td>
-            </tr>
-            <tr>
-                <td colspan="2">Description</td>
-                <td>Cover Maize Crop, 100 hectare, to be paid 1 Algo</td>
-            </tr>
-
-            <tr>
-                <td colspan="2">Strike Event</td>
-                <td>Temperature: 45 C, Humidity 10 %, Soil Moisture 2%</td>
-            </tr>
-            </tbody>
-        </table>
+        <h4>Policies</h4>
     </div>
-    <div class="mt-4">
-        <h4>Sign and Join</h4>
-        <form action="{{ url_for('main_bp.enrol') }}" method="post">
-            {{ form.csrf_token }}
+    <div class="mt-4" id="tableData"></div>
+{% endblock %}
 
-            <div class="mt-4"> {{ form.signature.label }}
-                <br/>
-            {{ form.signature(value=signature, readonly=True) }}</div>
 
-            <br>
-            {{ form.submit }}
-        </form>
+{% block scripts %}
+    <script type="text/javascript">
+        $(document).ready(function () {
 
-    </div>
+            let tableData = [];
+            loadData();
+
+            function loadData() {
+                $.ajax({
+                    url: '/policies',
+                    type: 'GET',
+                    success: function (response) {
+                        tableData = response;
+
+                        let tableRows = `
+                    <table class="table" id="bookedDatesTable">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>start</th>
+                            <th>end</th>
+                            <th>Description</th>
+                            <th>Premium</th>
+                            <th>Coverage Amount</th>
+                            <th>Strike Event</th>
+                        </tr>
+                        </thead>
+                        <tbody>`;
+                        for (let i in tableData) {
+                            let highlightClass = tableData[i].myPolicy ? 'row-highlighted' : '';
+
+                            tableRows += `
+                         <tr class="${highlightClass}">
+                            <td class="">${tableData[i].name}</td>
+                            <td class="">${tableData[i].start_date}</td>
+                            <td class="">${tableData[i].end_date}</td>
+                            <td class="text-primary">${tableData[i].description}</td>
+                            <td class="">${tableData[i].premium}</td>
+                            <td class="">${tableData[i].coverage_amount}</td>
+                             <td class="">${tableData[i].strike_event}</td>
+                            <td class="text-center">`;
+                            if (tableData[i].myPolicy) {
+
+                                tableRows += `
+                                    <button type="button"
+                                            name="remove-card"
+                                            class="btn btn-outline-danger btn-sm cancelBtn ml-2"
+                                            aria-label="Left Align"
+                                            title="Cancel"
+                                            value="${tableData[i].id}">
+                                        Cancel
+                                    </button>`;
+
+                            } else {
+
+                                tableRows += `
+                                    <button type="button"
+                                            name="remove-card"
+                                            class="btn btn-outline-success btn-sm joinBtn ml-2"
+                                            aria-label="Left Align"
+                                            title="Join"
+                                            value="${tableData[i].id}">
+                                        Join
+                                    </button>`;
+
+                            }
+
+                            tableRows += `
+                            </td>
+                        </tr>`;
+                        }
+                        tableRows += `
+                      </tbody>
+                    </table>`;
+
+                        $('#tableData').html(tableRows);
+                        //$('#bookedDatesTable').DataTable();
+
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            }
+
+
+            $('#tableData').on('click', '.cancelBtn', function () {
+
+                let id = $(this).val(); // capture value of clicked button (date)
+
+                $.ajax({
+                    url: '/policies',
+                    data: JSON.stringify(id),
+                    contentType: 'application/json;charset=UTF-8',
+                    type: 'DELETE',
+                    success: function (response) {
+                        $('#msg').removeClass('d-none').html(`<p class="p-3 ${response['class']} " >${response['msg']}</p>`)
+                        setTimeout(() => {
+                            $('#msg').addClass('d-none')
+                        }, 3000)
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                }).done(function () {
+                    loadData();
+                });
+            });
+
+            $('#tableData').on('click', '.joinBtn', function () {
+
+                let id = $(this).val(); // capture value of clicked button (date)
+
+                $.ajax({
+                    url: '/policies',
+                    data: JSON.stringify(id),
+                    contentType: 'application/json;charset=UTF-8',
+                    type: 'POST',
+                    success: function (response) {
+                        $('#msg').removeClass('d-none').html(`<p class="p-3 ${response['class']} " >${response['msg']}</p>`)
+                        setTimeout(() => {
+                            $('#msg').addClass('d-none')
+                        }, 3000)
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                }).done(function () {
+                    loadData();
+                });
+            });
+
+
+        });
+
+    </script>
 {% endblock %}

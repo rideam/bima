@@ -1,9 +1,10 @@
 import json
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, render_template, redirect, url_for, jsonify
 from flask_login import login_required, logout_user, current_user
 import settings
 
 from forms import PayForm, EnrolForm
+from models import Policy
 
 main_bp = Blueprint(
     'main_bp',
@@ -18,6 +19,9 @@ main_bp = Blueprint(
 def index():
     """Home page to display account details"""
     balance = current_user.get_balance()
+
+    current_user.wallet_address = current_user.public_key
+    # user_policies = Policy.query.filter(Policy.farmers.contains(current_user)).all()
     return render_template('index.html',
                            balance=balance,
                            address=current_user.public_key
@@ -40,22 +44,27 @@ def enrol():
         success, txid = current_user.send(0, settings.account_one_address, json.dumps(policy))
         return render_template('success.html', success=success, txid=txid)
 
-    return render_template('enrol.html', form=form, signature=f"Signed by {current_user.public_key}")
+    policies = Policy.query.all()
+    # policies = [policy.as_dict() for policy in policy_recs]
+    return render_template('enrol.html',
+                           form=form,
+                           policies=policies,
+                           signature=f"Signed by {current_user.public_key}")
 
 
-@main_bp.route('/pay', methods=['GET', 'POST'])
-@login_required
-def pay():
-    """Payment form for transactions"""
-    form = PayForm()
-    if form.validate_on_submit():
-        success, txid = current_user.send(form.amount.data, form.receiver.data, form.note.data)
-        return render_template('success.html', success=success, txid=txid)
-
-    return render_template('pay.html', form=form,
-                           receiver=settings.account_one_address,
-                           amount=0.1,
-                           note=f"Paid by {current_user.public_key}")
+# @main_bp.route('/pay', methods=['GET', 'POST'])
+# @login_required
+# def pay():
+#     """Payment form for transactions"""
+#     form = PayForm()
+#     if form.validate_on_submit():
+#         success, txid = current_user.send(form.amount.data, form.receiver.data, form.note.data)
+#         return render_template('success.html', success=success, txid=txid)
+#
+#     return render_template('pay.html', form=form,
+#                            receiver=settings.account_one_address,
+#                            amount=0.1,
+#                            note=f"Paid by {current_user.public_key}")
 
 
 @main_bp.route('/payouts', methods=['GET', 'POST'])

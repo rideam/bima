@@ -1,21 +1,49 @@
-<nav class="topnav">
-    {% if current_user.is_authenticated %}
-        <a href="{{ url_for('main_bp.index') }}" {% if request.path==url_for('main_bp.index') %}
-           class="active"{% endif %}>
-            Account
-        </a>
-        <a href="{{ url_for('main_bp.enrol') }}" {% if request.path==url_for('main_bp.enrol') %}
-           class="active"{% endif %}>
-            Join Policy
-        </a>
-        <a href="{{ url_for('main_bp.pay') }}" {% if request.path==url_for('main_bp.pay') %}
-           class="active"{% endif %}>Pay
-            Premium
-        </a>
-        <a href="{{ url_for('main_bp.payouts') }}" {% if request.path==url_for('main_bp.payouts') %}
-           class="active"{% endif %}>
-            Payouts
-        </a>
-        <a class="logout ml-3" href="{{ url_for('main_bp.logout') }}"> Logout </a>
-    {% endif %}
-</nav>
+{% if current_user.is_authenticated %}
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light" role="navigation">
+
+        <a class="navbar-brand" href="/">Insurance</a>
+
+        <button type="button" class="navbar-toggler"
+                data-toggle="collapse" data-target="#home-navbar-collapse"
+                aria-controls="home-navbar-collapse" aria-expanded="false" aria-label="Toggle navigation"
+        >
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+
+        <div class="collapse navbar-collapse" id="home-navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                <li {% if request.path==url_for('main_bp.index') %}
+                    class="nav-item active"{% else %} class="nav-item"{% endif %}>
+                    <a class="nav-link" href="{{ url_for('main_bp.index') }}">
+                        Account
+                    </a>
+                </li>
+                <li {% if request.path==url_for('main_bp.enrol') %}
+                    class="nav-item active"{% else %} class="nav-item"{% endif %} >
+                    <a class="nav-link" href="{{ url_for('main_bp.enrol') }}">
+                        Join Policy
+                    </a>
+                </li>
+                {#<li {% if request.path==url_for('main_bp.pay') %}
+                    class="nav-item active"{% else %} class="nav-item"{% endif %}>
+                    <a class="nav-link" href="{{ url_for('main_bp.pay') }}">Pay
+                        Premium
+                    </a>
+                </li>#}
+                <li {% if request.path==url_for('main_bp.payouts') %}
+                    class="nav-item active"{% else %} class="nav-item"{% endif %}>
+                    <a class="nav-link" href="{{ url_for('main_bp.payouts') }}">
+                        Payouts
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link logout ml-3" href="{{ url_for('main_bp.logout') }}">
+                        Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+{% endif %}

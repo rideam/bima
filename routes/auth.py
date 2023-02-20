@@ -4,7 +4,7 @@ from flask_login import LoginManager, current_user, login_user
 
 from algod import create_account
 from forms import LoginForm
-from models import User
+from models import User, db
 
 login_manager = LoginManager()
 
@@ -19,6 +19,7 @@ auth_bp = Blueprint(
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     """Login page"""
+
     if current_user.is_authenticated:
         return redirect(url_for('main_bp.index'))
 
@@ -27,10 +28,22 @@ def login():
         try:
             user = User(passphrase=form.passphrase.data)
             login_user(user)
+            try:
+                user_in_db = User.query.filter_by(wallet_address=user.public_key).first()
+                if not user_in_db:
+                    user.wallet_address = user.public_key
+                    db.session.add(user)
+                    db.session.commit()
+            except Exception as err:
+                print(err)
+            print('passed by here')
+
             return redirect(url_for('main_bp.index'))
         except Exception as err:
             flash(err)
+            print('in exception')
             return render_template('login.html', form=form)
+    print('out here')
     return render_template('login.html', form=form)
 
 

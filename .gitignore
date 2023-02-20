@@ -7,3 +7,6 @@ serverless.yml
 package-lock.json
 package.json
 .idea
+instance/database.db
+migrations
+static/bootstrap
