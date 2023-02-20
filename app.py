@@ -9,6 +9,7 @@ from models import db, \
     Weather, \
     Policy, \
     Event, \
+    Farm, \
     Role, \
     User
 from flask_admin import Admin
@@ -54,10 +55,15 @@ class UserView(ModelView):
     column_list = ("wallet_address",)
 
 
+class FarmView(ModelView):
+    column_hide_backrefs = False
+
+
 admin.add_view(PolicyView(model=Policy, session=db.session))
 admin.add_view(EventView(model=Event, session=db.session))
 admin.add_view(UserView(model=User, session=db.session))
 admin.add_view(ModelView(model=Role, session=db.session))
+admin.add_view(FarmView(model=Farm, session=db.session))
 
 
 @app.shell_context_processor

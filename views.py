@@ -4,7 +4,7 @@ from flask_login import login_required, logout_user, current_user
 import settings
 
 from forms import PayForm, EnrolForm
-from models import Policy
+from models import Policy, Payout
 
 main_bp = Blueprint(
     'main_bp',
@@ -32,23 +32,23 @@ def index():
 @login_required
 def enrol():
     """Joining form for policy enrollment"""
-    form = EnrolForm()
-    if form.validate_on_submit():
-        policy = {
-            "start": "01/01/2023",
-            "end": "30/12/2023",
-            "description": "Cover Maize Crop, 100 hectare, to be paid 1 Algo",
-            "Strike Event": "Temperature: 45 C, Humidity 10 %, Soil Moisture 2%",
-            "signature": f"{form.signature.data}"
-        }
-        success, txid = current_user.send(0, settings.account_one_address, json.dumps(policy))
-        return render_template('success.html', success=success, txid=txid)
+    # form = EnrolForm()
+    # if form.validate_on_submit():
+    #     policy = {
+    #         "start": "01/01/2023",
+    #         "end": "30/12/2023",
+    #         "description": "Cover Maize Crop, 100 hectare, to be paid 1 Algo",
+    #         "Strike Event": "Temperature: 45 C, Humidity 10 %, Soil Moisture 2%",
+    #         "signature": f"{form.signature.data}"
+    #     }
+    #     success, txid = current_user.send(0, settings.account_one_address, json.dumps(policy))
+    #     return render_template('success.html', success=success, txid=txid)
 
-    policies = Policy.query.all()
+    # policies = Policy.query.all()
     # policies = [policy.as_dict() for policy in policy_recs]
     return render_template('enrol.html',
-                           form=form,
-                           policies=policies,
+                           # form=form,
+                           # policies=policies,
                            signature=f"Signed by {current_user.public_key}")
 
 
@@ -71,7 +71,10 @@ def enrol():
 @login_required
 def payouts():
     """Payouts received"""
-    return render_template('payouts.html')
+
+    pay_outs = Payout.query.filter_by(farmer_id=current_user.public_key).all()
+    return render_template('payouts.html',
+                           payouts=[p.as_dict() for p in pay_outs])
 
 
 @main_bp.route('/mnemonic')

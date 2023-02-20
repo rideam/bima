@@ -4,9 +4,20 @@
     <div class="mt-4">
         <h4>Payouts</h4>
         <table class="table">
-            <tbody>
             <tr>
+                <th>Payout Date</th>
+                <th>Policy</th>
+                <th>Amount</th>
             </tr>
+            <tbody>
+            {% for payout in payouts %}
+                <tr>
+                    <td>{{ payout.payout_date }}</td>
+                    <td>{{ payout.policy_id }}</td>
+                    <td>{{ payout.amount }}</td>
+                    <td><a href="{{ payout.blockchain_url }}" class="btn btn-outline-success btn-sm ml-2 mt-1" target="_blank">View on blockchain</a></td>
+                </tr>
+            {% endfor %}
             </tbody>
         </table>
     </div>
