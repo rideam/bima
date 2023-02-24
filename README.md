@@ -1,6 +1,6 @@
 # Bima Insurance Platform
 
-Flask app to simulate user platform for payouts 
+Blockchain based weather index insurance platform.
 
 ![](./docs/img/cover.png)
 
@@ -28,7 +28,7 @@ ADMIN_USERNAME=
 ADMIN_PASSWORD=
 ```
 
-## Detailed app description
+## App Description
 
 The detailed app description is [here](/docs/README.md)
 
