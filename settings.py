@@ -15,3 +15,8 @@ account_one_memonic = os.environ["ACCOUNT1_MNEMONIC"]
 
 account_two_address = os.environ["ACCOUNT2_ADDRESS"]
 account_two_memonic = os.environ["ACCOUNT2_MNEMONIC"]
+
+admin_user = os.environ["ADMIN_USERNAME"]
+admin_pwd = os.environ["ADMIN_PASSWORD"]
+
+template_mode = 'bootstrap3'

@@ -1,0 +1,100 @@
+{% extends 'layout.html' %}
+
+{% block style %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="mt-4">
+        <h4>Sensor Data</h4>
+
+        <canvas id="chart" height="400" style="width: 100%"></canvas>
+
+        <table class="table mt-4">
+            <thead>
+            <tr>
+                <th>Farm</th>
+                <th>Crop</th>
+                <th>Temperature</th>
+                <th>Humidity</th>
+                <th>Soil Moisture</th>
+                <th>Date</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for weather in farm_weather_data %}
+                <tr>
+                    <td>{{ weather.farm }}</td>
+                    <td>{{ weather.crop }}</td>
+                    <td>{{ weather.temperature }}</td>
+                    <td>{{ weather.humidity }}</td>
+                    <td>{{ weather.soil_moisture }}</td>
+                    <td>{{ weather.created_at }}</td>
+                    {% if weather.blockchain_url %}
+                        <td><a href="{{ weather.blockchain_url }}" class="btn btn-success btn-sm ml-2 mt-1"
+                               target="_blank">View on blockchain</a></td>
+                    {% else %}
+                        <td></td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+
+{% block scripts %}
+
+    <script>
+        const ctx = document.getElementById('chart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+
+            data: {
+                labels: [{% for item in farm_weather_data %}
+                    "{{ item.created_at }}",
+                {% endfor %}],
+                datasets: [{
+                    label: 'Temperature',
+                    data: [{% for item in farm_weather_data %}
+                        {{ item.temperature }},
+                    {% endfor %}],
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                },
+                    {
+                        label: 'Humidity',
+                        data: [{% for item in farm_weather_data %}
+                            {{ item.humidity }},
+                        {% endfor %}],
+                        backgroundColor: 'rgba(12, 164, 21, 0.2)',
+                        borderColor: 'rgba(12, 164, 21, 1)',
+                        borderWidth: 1
+                    },
+
+                    {
+                        label: 'Soil Moisture',
+                        data: [{% for item in farm_weather_data %}
+                            {{ item.soil_moisture }},
+                        {% endfor %}],
+                        backgroundColor: 'rgba(10, 3, 201, 0.2)',
+                        borderColor: 'rgba(10, 3, 201, 1)',
+                        borderWidth: 1
+                    },
+                ]
+            },
+            options: {
+                responsive: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    },
+                }
+            }
+        });
+    </script>
+
+{% endblock %}

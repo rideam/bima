@@ -7,10 +7,10 @@
     <link href="{{ url_for('static', filename='img/favicon.ico') }}" rel="shortcut icon">
     {#<link rel="stylesheet" type="text/css"
           href="{{ url_for('static', filename='css/bootstrap.min.css', _external=True, _scheme='http') }}">#}
-    <link href="{{ url_for('static',filename='bootstrap/bootstrap4/swatch/{swatch}/bootstrap.min.css'.format(swatch=config.get('FLASK_ADMIN_SWATCH', 'default'))) }}"
+    <link href="{{ url_for('static',filename='bootstrap/'+config.get('TEMPLATE_MODE', 'boostrap3')+'/swatch/{swatch}/bootstrap.min.css'.format(swatch=config.get('FLASK_ADMIN_SWATCH', 'default'))) }}"
           rel="stylesheet">
     {% if config.get('FLASK_ADMIN_SWATCH', 'default') == 'default' %}
-        <link href="{{ url_for('static',filename='bootstrap/bootstrap4/css/bootstrap-theme.min.css') }}"
+        <link href="{{ url_for('static',filename='bootstrap/'+config.get('TEMPLATE_MODE', 'boostrap3')+'/css/bootstrap-theme.min.css') }}"
               rel="stylesheet">
     {% endif %}
     <link rel="stylesheet" type="text/css"
@@ -26,7 +26,7 @@
 <header></header>
 
 
-<div class="container my-3">
+<div class="container mt-2">
     {% include 'nav.html' %}
 
     <div class="mx-2">

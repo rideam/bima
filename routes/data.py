@@ -1,3 +1,5 @@
+import json
+
 from flask import Blueprint
 from models import Weather, \
     PremiumPayments, \
@@ -12,14 +14,24 @@ from flask_login import current_user
 import datetime
 import settings
 
+from enum import Enum
+
 data_bp = Blueprint(
     'data_bp',
     __name__
 )
 
 
+class Conditions(Enum):
+    GT = '>'
+    LS = '<'
+    EQ = '='
+
+
 @data_bp.route('/weather', methods=['POST', 'GET'])
 def add_weather_data():
+    admin = User(settings.account_one_memonic)
+
     if request.method == 'POST':
         data = request.get_json()
         weather_dict = {
@@ -28,40 +40,64 @@ def add_weather_data():
             "soil_moisture": data["soil_moisture"],
             "farm": data["farm"],
             "crop": data["crop"],
+            "user": data["user"]
         }
+
+        # farm = Farm.query.filter_by(name=data['farm']).first()
+        # user = User.query.filter(User.farms.contains(farm)).first()
+        user = User.query.filter_by(wallet_address=data['user']).first()
+        user_policy = Policy.query.filter(Policy.farmers.contains(user)).first()
+        w_success, w_txid = admin.send(0, user.wallet_address,
+                                       json.dumps(weather_dict))
+
+        if w_success:
+            print(f'data send to chain \n https://goalseeker.purestake.io/algorand/testnet/transaction/{w_txid}')
+            weather_dict["blockchain_url"] = f'https://goalseeker.purestake.io/algorand/testnet/transaction/{w_txid}'
+
         weather_rec = Weather(**weather_dict)
         db.session.add(weather_rec)
         db.session.commit()
-
-        # TODO send data to blockchain
-
-        # TODO if strike event trigger payout
-        farm = Farm.query.filter_by(name=data['farm']).first()
-        user = User.query.filter(User.farms.contains(farm)).first()
-        user_policy = Policy.query.filter(Policy.farmers.contains(user)).first()
-
         strike_events = user_policy.strike_event
 
-        # strike_events = []
-        # for policy in user_policies:
-        #     strike_events += policy.strike_event
-        print(strike_events)
-
-        trigger_payout = False
+        condition_pass = {
+            'temperature': False,
+            'humidity': False,
+            'soil_moisture': False
+        }
+        # trigger_payout = False
         for event in strike_events:
-            if data["temperature"] > event.temperature and \
-                    data["humidity"] > event.humidity and \
-                    data["soil_moisture"] < event.soil_moisture:
-                trigger_payout = True
+            # Temperature conditions
+            if event.temperature_condition == Conditions.GT.value:
+                if data["temperature"] > event.temperature:
+                    condition_pass['temperature'] = True
+            elif event.temperature_condition == Conditions.LS.value:
+                if data["temperature"] < event.temperature:
+                    condition_pass['temperature'] = True
 
-        print(trigger_payout)
+            # Humidity conditions
+            if event.humidity_condition == Conditions.GT.value:
+                if data["humidity"] > event.humidity:
+                    condition_pass['humidity'] = True
+            elif event.humidity_condition == Conditions.LS.value:
+                if data["humidity"] < event.humidity:
+                    condition_pass['humidity'] = True
+
+            # Soil moisture
+            if event.soil_moisture_condition == Conditions.GT.value:
+                if data["soil_moisture"] > event.soil_moisture:
+                    condition_pass['soil_moisture'] = True
+            elif event.soil_moisture_condition == Conditions.LS.value:
+                if data["soil_moisture"] < event.soil_moisture:
+                    condition_pass['soil_moisture'] = True
+
+        trigger_payout = all(value for value in condition_pass.values())
+        print(f'Trigger payout {trigger_payout}')
         if trigger_payout:
-            admin = User(settings.account_one_memonic)
             success, txid = admin.send(user_policy.coverage_amount, user.wallet_address,
                                        f'Paid by {admin.public_key}')
 
-            print(success)
-            print(f'https://goalseeker.purestake.io/algorand/testnet/transaction/{txid}')
+            # print(success)
+            # print(f'https://goalseeker.purestake.io/algorand/testnet/transaction/{txid}')
 
             if success:
                 pyt_dict = {
@@ -90,39 +126,32 @@ def policies():
 
     if request.method == 'POST':
         id = request.json
-        policy_to_cancel = Policy.query.filter_by(id=int(id)).one()
+        policy_to_join = Policy.query.filter_by(id=int(id)).one()
         user = User.query.filter_by(wallet_address=current_user.public_key).first()
 
-        # user_not_available = True
-        # for farmer in policy_to_cancel.farmers:
-        #     if farmer.wallet_address == user.wallet_address:
-        #         user_not_available = False
-        #
-        # if user_not_available:
-        if user not in policy_to_cancel.farmers:
-            policy_to_cancel.farmers.append(user)
+        if user not in policy_to_join.farmers:
+            policy_to_join.farmers.append(user)
             db.session.commit()
         policy_recs = Policy.query.all()
-        return jsonify([{**policy.as_dict(), 'strike_event': policy.strike_event[0].desc,
-                         'myPolicy': policy.my_policy(current_user.public_key)} for policy in policy_recs])
+        return jsonify([{**policy.as_dict(),
+                         'strike_event': policy.strike_event[0].desc,
+                         'myPolicy': policy.my_policy(current_user.public_key)} for policy in policy_recs]
+                       )
 
     if request.method == 'DELETE':
         id = request.json
         policy_to_cancel = Policy.query.filter_by(id=int(id)).one()
         user = User.query.filter_by(wallet_address=current_user.public_key).first()
 
-        # user_available = False
-        # for farmer in policy_to_cancel.farmers:
-        #     if farmer.wallet_address == user.wallet_address:
-        #         user_available = True
-
-        # if user_available:
         if user in policy_to_cancel.farmers:
             policy_to_cancel.farmers.remove(user)
             db.session.commit()
         policy_recs = Policy.query.all()
-        return jsonify([{**policy.as_dict(), 'strike_event': policy.strike_event[0].desc,
-                         'myPolicy': policy.my_policy(current_user.public_key)} for policy in policy_recs])
+        return jsonify([{**policy.as_dict(),
+                         'strike_event': policy.strike_event[0].desc,
+                         'myPolicy': policy.my_policy(current_user.public_key)}
+                        for policy in policy_recs]
+                       )
 
 
 @data_bp.route('/mypolicies', methods=['POST', 'GET', 'DELETE'])
@@ -136,8 +165,9 @@ def mypolicies():
                          'strike_event': policy.strike_event[0].desc,
                          'myPolicy': policy.my_policy(current_user.public_key),
                          'isPremiumPaid': policy.is_premium_paid(current_user.public_key) != '',
-                         'blockchain_url': policy.is_premium_paid(current_user.public_key)} for policy in
-                        user_policies])
+                         'blockchain_url': policy.is_premium_paid(current_user.public_key)}
+                        for policy in user_policies]
+                       )
 
 
 @data_bp.route('/paypremium', methods=['POST'])

@@ -1,0 +1,26 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="mt-4">
+        <h4>Payouts</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Payout Date</th>
+                    <th>Policy</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for payout in payouts %}
+                <tr>
+                    <td>{{ payout.payout_date }}</td>
+                    <td>{{ payout.name }}</td>
+                    <td>{{ payout.amount }} <span class="badge text-white bg-primary text-sm">algos</span></td>
+                    <td><a href="{{ payout.blockchain_url }}" class="btn btn-success btn-sm ml-2 mt-1" target="_blank">View on chain</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

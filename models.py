@@ -1,9 +1,7 @@
 from algosdk import mnemonic
 from algosdk.account import address_from_private_key
 from flask_login import UserMixin
-
 from algod import get_balance, send_txn
-from indexer import get_transactions
 
 from sqlalchemy.sql import func
 from flask_sqlalchemy import SQLAlchemy
@@ -61,10 +59,6 @@ class User(db.Model, UserMixin):
         """Returns True and Transaction id for a successful transaction. Quantity is given in algos"""
         return send_txn(self.public_key, quantity, receiver, note, self.id)
 
-    def get_transactions(self, substring):
-        """Returns a list of the user's transactions"""
-        return get_transactions(self.public_key, substring)
-
     def __eq__(self, other):
         return self.wallet_address == other.wallet_address
 
@@ -78,6 +72,8 @@ class Weather(db.Model):
     soil_moisture = db.Column(db.Float, nullable=False)
     farm = db.Column(db.String(255), nullable=False)
     crop = db.Column(db.String(100), nullable=False)
+    user = db.Column(db.String(255), nullable=True)
+    blockchain_url = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime(timezone=True),
                            server_default=func.now())
 
@@ -85,15 +81,31 @@ class Weather(db.Model):
         return '<Weather %r>' % (self.id)
 
     def as_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        result = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        for c in self.__table__.columns:
+            if isinstance(c.type, db.DateTime) and getattr(self, c.name) is not None:
+                result[c.name] = getattr(self, c.name).strftime('%d-%m-%Y %H:%M')
+        return result
 
 
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     temperature = db.Column(db.Float, nullable=False)
+    temperature_condition = db.Column(db.String(100),
+                                      nullable=True,
+                                      server_default='eq',
+                                      info={'choices': ['gt', 'ls', 'eq']})
     humidity = db.Column(db.Float, nullable=False)
+    humidity_condition = db.Column(db.String(100), nullable=True,
+                                   server_default='eq',
+                                   info={'choices': ['gt', 'ls', 'eq']}
+                                   )
     soil_moisture = db.Column(db.Float, nullable=False)
+    soil_moisture_condition = db.Column(db.String(100), nullable=True,
+                                        server_default='eq',
+                                        info={'choices': ['gt', 'ls', 'eq']}
+                                        )
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -103,7 +115,9 @@ class Event(db.Model):
 
     @property
     def desc(self):
-        return f'temp  {self.temperature} C; hum {self.humidity}%; moisture {self.soil_moisture} %'
+        return f'Temp {self.temperature_condition} {self.temperature} C; ' \
+               f'Humidity {self.humidity_condition} {self.humidity}%; ' \
+               f'Moisture {self.soil_moisture_condition} {self.soil_moisture} %'
 
 
 class PremiumPayments(db.Model):
@@ -125,13 +139,13 @@ class Payout(db.Model):
     amount = db.Column(db.Float(), nullable=False)
     payout_date = db.Column(db.DateTime(timezone=True),
                             server_default=func.now())
-    blockchain_url = db.Column(db.Text)
+    blockchain_url = db.Column(db.String(255))
 
     def as_dict(self):
         result = {c.name: getattr(self, c.name) for c in self.__table__.columns}
         for c in self.__table__.columns:
             if isinstance(c.type, db.DateTime) and getattr(self, c.name) is not None:
-                result[c.name] = getattr(self, c.name).strftime('%d-%m-%Y')
+                result[c.name] = getattr(self, c.name).strftime('%d-%m-%Y %H:%M')
         return result
 
 

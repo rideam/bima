@@ -1,11 +1,14 @@
-# User Platform
+# Bima Insurance Platform
 
 Flask app to simulate user platform for payouts 
+
+![](./docs/img/cover.png)
 
 ## Tech Stack 
 
 - `Flask`
 - `Algorand`
+- `Postgres`
 
 
 ## Setup
@@ -21,6 +24,8 @@ ACCOUNT1_ADDRESS=
 ACCOUNT1_MNEMONIC=
 ACCOUNT2_ADDRESS=
 ACCOUNT2_MNEMONIC=
+ADMIN_USERNAME=
+ADMIN_PASSWORD=
 ```
 
 ## Detailed app description

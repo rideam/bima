@@ -1,6 +1,6 @@
 body {
     margin: 0;
-    font-family: helvetica;
+    /*font-family: helvetica;*/
     color: black;
 }
 
@@ -84,4 +84,28 @@ th, td {
 .topnav a.logout {
     background-color: #7a0606;
     color: white;
+}
+
+.mt-1 {
+    margin-top: 0.5rem ;
+}
+
+.mt-2 {
+    margin-top: 1rem ;
+}
+
+.mt-3 {
+    margin-top: 1.5rem ;
+}
+
+.mt-4 {
+    margin-top: 2.5rem ;
+}
+
+.mt-5 {
+    margin-top: 3.5rem ;
+}
+
+.text-sm{
+    font-size: 11px !important;
 }

@@ -1,5 +1,7 @@
 import os
 
+import settings
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -11,5 +13,5 @@ class BaseConfig(object):
     SQLALCHEMY_DATABASE_URI = 'postgresql:///playground'
     # SQLALCHEMY_DATABASE_URI = 'sqlite:///database.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    FLASK_ADMIN_SWATCH = 'lumen'
-    # FLASK_ADMIN_SWATCH = 'united'
+    FLASK_ADMIN_SWATCH = 'readable'
+    TEMPLATE_MODE = settings.template_mode

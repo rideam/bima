@@ -11,7 +11,7 @@
             </tr>
             <tr>
                 <td colspan="2">Balance</td>
-                <td><b>{{ balance }}</b> <span class="badge text-white bg-primary">Algos</span></td>
+                <td><b>{{ balance }}</b> <span class="badge text-white bg-primary text-sm">Algos</span></td>
             </tr>
             </tbody>
         </table>
@@ -29,33 +29,6 @@
 
     <div class="mt-5">
         <h4>My Policies</h4>
-        {#<table class="table">
-
-            <tr>
-                <th>Name</th>
-                <th>start</th>
-                <th>end</th>
-                <th>Description</th>
-                <th>Premium</th>
-                <th>Coverage Amount</th>
-                <th>Strike Event</th>
-            </tr>
-            <tbody>
-            {% for policy in policies %}
-                <tr>
-                    <td>{{ policy.name }}</td>
-                    <td>{{ policy.start_date }}</td>
-                    <td>{{ policy.end_date }}</td>
-                    <td>{{ policy.description }}</td>
-                    <td>{{ policy.premium }}</td>
-                    <td>{{ policy.coverage_amount }}</td>
-                <td>{{ policy.strike_event[0].desc }}</td>
-                </tr>
-
-            {% endfor %}
-
-            </tbody>
-        </table>#}
         <div class="mt-1" id="tableData"></div>
     </div>
 
@@ -80,11 +53,11 @@
                         <thead>
                         <tr>
                             <th>Name</th>
-                            <th>start</th>
-                            <th>end</th>
+                            <th>Start</th>
+                            <th>End</th>
                             <th>Description</th>
                             <th>Premium</th>
-                            <th>Coverage Amount</th>
+                            <th>Cover</th>
                             <th>Strike Event</th>
                         </tr>
                         </thead>
@@ -107,7 +80,7 @@
                                 tableRows += `
                                     <button type="button"
                                             name="remove-card"
-                                            class="btn btn-outline-danger btn-sm cancelBtn ml-2"
+                                            class="btn btn-danger btn-sm cancelBtn ml-2 mt-1"
                                             aria-label="Left Align"
                                             title="Cancel"
                                             value="${tableData[i].id}">
@@ -121,7 +94,7 @@
                                 tableRows += `
                                     <button type="button"
                                             name="remove-card"
-                                            class="btn btn-outline-success btn-sm payBtn ml-2 mt-1"
+                                            class="btn btn-primary btn-sm payBtn ml-2 mt-1"
                                             aria-label="Left Align"
                                             title="Join"
                                             value="${tableData[i].id}">
@@ -131,7 +104,7 @@
 
                             if (tableData[i].blockchain_url !== "") {
                                 tableRows += `
-                                    <a href="${tableData[i].blockchain_url}" class="btn btn-outline-success btn-sm ml-2 mt-1" target="_blank"> View on Blockchain</a>
+                                    <a href="${tableData[i].blockchain_url}" class="btn btn-success btn-sm ml-2 mt-1" target="_blank"> Premium Paid on chain</a>
                                     `
                             }
 

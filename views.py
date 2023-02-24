@@ -1,15 +1,13 @@
-import json
-from flask import Blueprint, render_template, redirect, url_for, jsonify
+from flask import Blueprint, render_template, redirect, url_for
 from flask_login import login_required, logout_user, current_user
 import settings
-
-from forms import PayForm, EnrolForm
-from models import Policy, Payout
+from sqlalchemy import desc
+from models import Policy, Payout, Weather
 
 main_bp = Blueprint(
     'main_bp',
     __name__,
-    template_folder='templates',
+    template_folder=f'templates/{settings.template_mode}',
     static_folder='static'
 )
 
@@ -21,50 +19,22 @@ def index():
     balance = current_user.get_balance()
 
     current_user.wallet_address = current_user.public_key
-    # user_policies = Policy.query.filter(Policy.farmers.contains(current_user)).all()
-    return render_template('index.html',
-                           balance=balance,
-                           address=current_user.public_key
-                           )
+    return render_template(
+        'index.html',
+        balance=balance,
+        address=current_user.public_key
+    )
 
 
 @main_bp.route('/enrol', methods=['GET', 'POST'])
 @login_required
 def enrol():
-    """Joining form for policy enrollment"""
-    # form = EnrolForm()
-    # if form.validate_on_submit():
-    #     policy = {
-    #         "start": "01/01/2023",
-    #         "end": "30/12/2023",
-    #         "description": "Cover Maize Crop, 100 hectare, to be paid 1 Algo",
-    #         "Strike Event": "Temperature: 45 C, Humidity 10 %, Soil Moisture 2%",
-    #         "signature": f"{form.signature.data}"
-    #     }
-    #     success, txid = current_user.send(0, settings.account_one_address, json.dumps(policy))
-    #     return render_template('success.html', success=success, txid=txid)
+    """Joining a policy"""
 
-    # policies = Policy.query.all()
-    # policies = [policy.as_dict() for policy in policy_recs]
-    return render_template('enrol.html',
-                           # form=form,
-                           # policies=policies,
-                           signature=f"Signed by {current_user.public_key}")
-
-
-# @main_bp.route('/pay', methods=['GET', 'POST'])
-# @login_required
-# def pay():
-#     """Payment form for transactions"""
-#     form = PayForm()
-#     if form.validate_on_submit():
-#         success, txid = current_user.send(form.amount.data, form.receiver.data, form.note.data)
-#         return render_template('success.html', success=success, txid=txid)
-#
-#     return render_template('pay.html', form=form,
-#                            receiver=settings.account_one_address,
-#                            amount=0.1,
-#                            note=f"Paid by {current_user.public_key}")
+    return render_template(
+        'enrol.html',
+        signature=f"Signed by {current_user.public_key}"
+    )
 
 
 @main_bp.route('/payouts', methods=['GET', 'POST'])
@@ -72,15 +42,33 @@ def enrol():
 def payouts():
     """Payouts received"""
 
-    pay_outs = Payout.query.filter_by(farmer_id=current_user.public_key).all()
-    return render_template('payouts.html',
-                           payouts=[p.as_dict() for p in pay_outs])
+    pay_outs = Payout.query.filter_by(farmer_id=current_user.public_key) \
+        .join(Policy, Policy.id == Payout.policy_id) \
+        .add_columns(Policy.name) \
+        .all()
+    p = [{**p[0].as_dict(), 'name': p[1]} for p in pay_outs]
+    return render_template('payouts.html', payouts=p)
+
+
+@main_bp.route('/farmdata', methods=['GET', 'POST'])
+@login_required
+def farmdata():
+    """Payment form for transactions"""
+
+    farm_weather_data = Weather.query.filter_by(user=current_user.public_key) \
+        .order_by(desc(Weather.created_at)).limit(100) \
+        .all()
+    return render_template(
+        'farmdata.html',
+        farm_weather_data=[f.as_dict() for f in farm_weather_data]
+    )
 
 
 @main_bp.route('/mnemonic')
 @login_required
 def mnemonic():
     """Displays the recovery passphrase"""
+
     passphrase = current_user.passphrase
     return render_template('mnemonic.html', passphrase=passphrase)
 
@@ -89,5 +77,6 @@ def mnemonic():
 @login_required
 def logout():
     """User log-out logic"""
+
     logout_user()
     return redirect(url_for('auth_bp.login'))
