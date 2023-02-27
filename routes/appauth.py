@@ -36,14 +36,10 @@ def login():
                     db.session.commit()
             except Exception as err:
                 print(err)
-            print('passed by here')
-
             return redirect(url_for('main_bp.index'))
         except Exception as err:
             flash(err)
-            print('in exception')
             return render_template('login.html', form=form)
-    print('out here')
     return render_template('login.html', form=form)
 
 
