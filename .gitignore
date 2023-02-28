@@ -9,4 +9,4 @@ package.json
 .idea
 instance/database.db
 migrations
-static/bootstrap
+static/bootstrap/bootstrap4
