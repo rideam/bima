@@ -61,7 +61,8 @@ def configure_logging():
         file_handler = RotatingFileHandler('instance/bima.log',
                                            maxBytes=16384,
                                            backupCount=20)
-        file_formatter = logging.Formatter('%(asctime)s %(levelname)s %(threadName)s-%(thread)d: %(message)s [in %(filename)s:%(lineno)d]')
+        file_formatter = logging.Formatter(
+            '%(asctime)s %(levelname)s %(threadName)s-%(thread)d: %(message)s [in %(filename)s:%(lineno)d]')
         file_handler.setFormatter(file_formatter)
         file_handler.setLevel(logging.INFO)
         app.logger.addHandler(file_handler)
@@ -129,6 +130,7 @@ class MyAdminIndexView(AdminIndexView):
 class PolicyView(ModelView):
     column_hide_backrefs = False
     # inline_models = (Event,)
+    can_export = True
     column_list = ('name',
                    'description',
                    'start_date',
@@ -142,10 +144,32 @@ class PolicyView(ModelView):
 class EventView(ModelView):
     column_hide_backrefs = False
 
+    form_choices = {
+        'temperature_condition': [
+            ('>', 'Greater Than'),
+            ('<', 'Less Than'),
+            ('=', 'Equal To'),
+        ],
+        'humidity_condition': [
+            ('>', 'Greater Than'),
+            ('<', 'Less Than'),
+            ('=', 'Equal To'),
+        ],
+        'soil_moisture_condition': [
+            ('>', 'Greater Than'),
+            ('<', 'Less Than'),
+            ('=', 'Equal To'),
+        ]
+    }
+
 
 class UserView(ModelView):
     column_hide_backrefs = False
-    column_list = ("wallet_address",)
+    column_list = (
+        "wallet_address",
+        "farms",
+        "roles"
+    )
 
 
 class FarmView(ModelView):

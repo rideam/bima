@@ -93,19 +93,11 @@ class Event(db.Model):
     name = db.Column(db.String(255), nullable=False)
     temperature = db.Column(db.Float, nullable=False)
     temperature_condition = db.Column(db.String(100),
-                                      nullable=True,
-                                      server_default='eq',
-                                      info={'choices': ['gt', 'ls', 'eq']})
+                                      nullable=True)
     humidity = db.Column(db.Float, nullable=False)
-    humidity_condition = db.Column(db.String(100), nullable=True,
-                                   server_default='eq',
-                                   info={'choices': ['gt', 'ls', 'eq']}
-                                   )
+    humidity_condition = db.Column(db.String(100), nullable=True)
     soil_moisture = db.Column(db.Float, nullable=False)
-    soil_moisture_condition = db.Column(db.String(100), nullable=True,
-                                        server_default='eq',
-                                        info={'choices': ['gt', 'ls', 'eq']}
-                                        )
+    soil_moisture_condition = db.Column(db.String(100), nullable=True)
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
