@@ -12,6 +12,13 @@
     <div class="mt-4">
         <h4>Policies</h4>
     </div>
+
+    <div class="mt-3 pt-2 d-none" id="msg"></div>
+
+    <div class="d-none mt-3" id="loadersp">
+        <p class=" t-alert text-white alert-warning">Joining policy ....</p>
+    </div>
+
     <div class="mt-4" id="tableData"></div>
 {% endblock %}
 
@@ -112,7 +119,7 @@
                     contentType: 'application/json;charset=UTF-8',
                     type: 'DELETE',
                     success: function (response) {
-                        $('#msg').removeClass('d-none').html(`<p class="p-3 ${response['class']} " >${response['msg']}</p>`)
+                        $('#msg').removeClass('d-none').html(`<p class="p-3 t-alert ${response['class']} " >${response['msg']}</p>`)
                         setTimeout(() => {
                             $('#msg').addClass('d-none')
                         }, 3000)
@@ -127,6 +134,9 @@
 
             $('#tableData').on('click', '.joinBtn', function () {
 
+                $('#loadersp').removeClass('d-none')
+
+
                 let id = $(this).val(); // capture value of clicked button (date)
 
                 $.ajax({
@@ -135,7 +145,8 @@
                     contentType: 'application/json;charset=UTF-8',
                     type: 'POST',
                     success: function (response) {
-                        $('#msg').removeClass('d-none').html(`<p class="p-3 ${response['class']} " >${response['msg']}</p>`)
+                        $('#loadersp').addClass('d-none')
+                        $('#msg').removeClass('d-none').html(`<p class="p-3 t-alert ${response['class']} " >${response['msg']}</p>`)
                         setTimeout(() => {
                             $('#msg').addClass('d-none')
                         }, 3000)

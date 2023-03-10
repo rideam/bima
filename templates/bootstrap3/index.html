@@ -11,7 +11,7 @@
             </tr>
             <tr>
                 <td colspan="2">Balance</td>
-                <td><b>{{ balance }}</b> <span class="badge text-white bg-primary text-sm">Algos</span></td>
+                <td><b id="amount">{{ balance }}</b> <span class="badge text-white bg-primary text-sm">Algos</span></td>
             </tr>
             </tbody>
         </table>
@@ -20,11 +20,12 @@
     <div class="mt-3 pt-2 d-none" id="msg"></div>
 
     <div class="d-none" id="loadersp">
-        <div class="d-flex justify-content-center " >
+        <p class=" t-alert text-white alert-warning">Processing payment ....</p>
+        {#<div class="d-flex justify-content-center " >
             <div class="spinner-border" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
-        </div>
+        </div>#}
     </div>
 
     <div class="mt-5">
@@ -102,9 +103,15 @@
                                     </button>`;
                             }
 
-                            if (tableData[i].blockchain_url !== "") {
+                            if (tableData[i].premium_blockchain_url !== "") {
                                 tableRows += `
-                                    <a href="${tableData[i].blockchain_url}" class="btn btn-success btn-sm ml-2 mt-1" target="_blank"> Premium Paid on chain</a>
+                                    <a href="${tableData[i].premium_blockchain_url}" class="btn btn-success btn-sm ml-2 mt-1" target="_blank"> Premium Paid on chain</a>
+                                    `
+                            }
+
+                            if (tableData[i].policy_blockchain_url !== "") {
+                                tableRows += `
+                                    <a href="${tableData[i].policy_blockchain_url}" class="btn btn-success btn-sm ml-2 mt-1" target="_blank"> Policy on chain</a>
                                     `
                             }
 
@@ -137,7 +144,7 @@
                     contentType: 'application/json;charset=UTF-8',
                     type: 'DELETE',
                     success: function (response) {
-                        $('#msg').removeClass('d-none').html(`<p class="p-3 ${response['class']} " >${response['msg']}</p>`)
+                        $('#msg').removeClass('d-none').html(`<p class="p-3 text-white t-alert ${response['class']} " >${response['msg']}</p>`)
                         setTimeout(() => {
                             $('#msg').addClass('d-none')
                         }, 3000)
@@ -162,10 +169,11 @@
                     type: 'POST',
                     success: function (response) {
                         $('#loadersp').addClass('d-none')
-                        $('#msg').removeClass('d-none').html(`<p class="p-3 text-white ${response['class']} " >${response['msg']}</p>`)
+                        $('#msg').removeClass('d-none').html(`<p class="p-3 text-white t-alert ${response['class']} " >${response['msg']}</p>`)
                         setTimeout(() => {
                             $('#msg').addClass('d-none')
                         }, 3000)
+                        $('#amount').text(response['balance'])
                     },
                     error: function (error) {
                         console.log(error);

@@ -50,16 +50,16 @@ def payouts():
     return render_template('payouts.html', payouts=p)
 
 
-@main_bp.route('/farmdata', methods=['GET', 'POST'])
+@main_bp.route('/sensordata', methods=['GET', 'POST'])
 @login_required
-def farmdata():
+def sensordata():
     """Payment form for transactions"""
 
     farm_weather_data = Weather.query.filter_by(user=current_user.public_key) \
         .order_by(desc(Weather.created_at)).limit(100) \
         .all()
     return render_template(
-        'farmdata.html',
+        'sensordata.html',
         farm_weather_data=[f.as_dict() for f in farm_weather_data]
     )
 

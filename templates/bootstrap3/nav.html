@@ -44,9 +44,9 @@
                             Payouts
                         </a>
                     </li>
-                    <li {% if request.path==url_for('main_bp.farmdata') %}
+                    <li {% if request.path==url_for('main_bp.sensordata') %}
                         class="nav-item active"{% else %} class="nav-item"{% endif %}>
-                        <a class="nav-link" href="{{ url_for('main_bp.farmdata') }}">
+                        <a class="nav-link" href="{{ url_for('main_bp.sensordata') }}">
                             Sensor Data
                         </a>
                     </li>

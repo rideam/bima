@@ -163,8 +163,8 @@ class Policy(db.Model):
                 result[c.name] = getattr(self, c.name).strftime('%d-%m-%Y')
         return result
 
-    def is_valid(self, date):
-        return self.start_date <= date <= self.end_date
+    def is_valid(self, date, farmer_id):
+        return self.start_date <= date <= self.end_date and self.is_premium_paid(farmer_id)
 
     def my_policy(self, address):
         result = False
@@ -180,6 +180,13 @@ class Policy(db.Model):
                                                   year=datetime.datetime.now().year).first()
         if is_paid:
             return is_paid.blockchain_url
+        return ''
+
+    def policy_onchain(self, farmer_id):
+        policy_farmer_rec = PoliciesFarmers.query.filter_by(farmer_id=farmer_id,
+                                                            policy_id=self.id).first()
+        if policy_farmer_rec.blockchain_url:
+            return policy_farmer_rec.blockchain_url
         return ''
 
     def __str__(self):
@@ -203,6 +210,7 @@ class PoliciesFarmers(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     policy_id = db.Column(db.Integer(), db.ForeignKey('policy.id', ondelete='CASCADE'))
     farmer_id = db.Column(db.String(255), db.ForeignKey('user.wallet_address', ondelete='CASCADE'))
+    blockchain_url = db.Column(db.String(255), nullable=True)
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}

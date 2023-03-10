@@ -49,6 +49,14 @@ def signup():
     passphrase = create_account()
     user = User(passphrase=passphrase)
     login_user(user)
+    try:
+        user_in_db = User.query.filter_by(wallet_address=user.public_key).first()
+        if not user_in_db:
+            user.wallet_address = user.public_key
+            db.session.add(user)
+            db.session.commit()
+    except Exception as err:
+        print(err)
     return render_template('mnemonic.html', passphrase=passphrase)
 
 
