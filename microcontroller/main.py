@@ -19,7 +19,7 @@ def connect_wifi():
         while not wifi.isconnected() and delay < timeout:
             print(timeout - delay)
             delay = delay + 1
-            time.sleep(1)
+            time.sleep(2)
 
     if wifi.isconnected():
         print('Connected')
@@ -31,14 +31,22 @@ def connect_wifi():
 
 def get_data():
     temperature, humidity = dht11.get_temp_hum()
-    #soil_m = soil_moisture.get_soil_moisture()
+    # soil_m = soil_moisture.get_soil_moisture()
 
-    post_data = ujson.dumps({'temperature': temperature, 'humidity': humidity, 'soil_moisture': 50 , 'farm': 'Puma Farm', 'crop': 'Maize'})
+    post_data = ujson.dumps({
+        'temperature': temperature,
+        'humidity': humidity,
+        'soil_moisture': 50,
+        'farm': 'Puma Farm',
+        'crop': 'Maize',
+        'user': 'IZT2EGJMVWLUMZ56FM2NK7YVKUTDCGHUQ5KNRWMJQRY4K6ZSOGU6K4J464'
+    })
     request_url = creds.endpoint + '/weather'
+    # request_url = creds.endpoint + '/ping'
     print(request_url)
     try:
         res = urequests.post(request_url, headers={'content-type': 'application/json'}, data=post_data)
-        print(res.json)
+        # print(res.json)
     except Exception as e:
         print(e)
 
@@ -48,7 +56,7 @@ def main():
     if wifi.isconnected():
         while True:
             get_data()
-            time.sleep(20)
+            time.sleep(7200)  # sleep for 2 hours
 
 
 main()
