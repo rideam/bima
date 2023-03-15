@@ -30,6 +30,11 @@ class Conditions(Enum):
     EQ = '='
 
 
+@data_bp.route('/ping', methods=['POST', 'GET'])
+def ping():
+    return jsonify('API running successfully')
+
+
 @data_bp.route('/weather', methods=['POST', 'GET'])
 def add_weather_data():
     admin = User(settings.account_one_memonic)
