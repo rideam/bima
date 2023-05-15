@@ -28,30 +28,30 @@
                 <ul class="nav navbar-nav mr-auto">
                     <li {% if request.path==url_for('main_bp.index') %}
                         class="nav-item active"{% else %} class="nav-item"{% endif %}>
-                        <a class="nav-link" href="{{ url_for('main_bp.index') }}">
+                        <a id="account" class="nav-link" href="{{ url_for('main_bp.index') }}">
                             Account
                         </a>
                     </li>
                     <li {% if request.path==url_for('main_bp.enrol') %}
                         class="nav-item active"{% else %} class="nav-item"{% endif %} >
-                        <a class="nav-link" href="{{ url_for('main_bp.enrol') }}">
+                        <a id="joinpolicy" class="nav-link" href="{{ url_for('main_bp.enrol') }}">
                             Join Policy
                         </a>
                     </li>
                     <li {% if request.path==url_for('main_bp.payouts') %}
                         class="nav-item active"{% else %} class="nav-item"{% endif %}>
-                        <a class="nav-link" href="{{ url_for('main_bp.payouts') }}">
+                        <a id="payouts" class="nav-link" href="{{ url_for('main_bp.payouts') }}">
                             Payouts
                         </a>
                     </li>
                     <li {% if request.path==url_for('main_bp.sensordata') %}
                         class="nav-item active"{% else %} class="nav-item"{% endif %}>
-                        <a class="nav-link" href="{{ url_for('main_bp.sensordata') }}">
+                        <a id="sensordata" class="nav-link" href="{{ url_for('main_bp.sensordata') }}">
                             Sensor Data
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link logout ml-3" href="{{ url_for('main_bp.logout') }}">
+                        <a id="logout" class="nav-link logout ml-3" href="{{ url_for('main_bp.logout') }}">
                             Logout
                         </a>
                     </li>

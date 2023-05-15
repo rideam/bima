@@ -10,3 +10,7 @@ package.json
 instance/database.db
 migrations
 static/bootstrap/bootstrap4
+
+*/.env
+tests/data
+tests/geckodriver.log
