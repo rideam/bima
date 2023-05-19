@@ -198,6 +198,7 @@ appauth.login_manager.init_app(app)
 app.register_blueprint(views.main_bp)
 app.register_blueprint(appauth.auth_bp)
 app.register_blueprint(data.data_bp)
+app.register_blueprint(testing.testing_bp)
 
 configure_logging()
 check_db_init()

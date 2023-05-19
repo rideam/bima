@@ -46,6 +46,10 @@ def login():
 @auth_bp.route('/signup', methods=['GET', 'POST'])
 def signup():
     """Generates a user account and shows its passphrase"""
+
+    if current_user.is_authenticated:
+        return redirect(url_for('main_bp.index'))
+
     passphrase = create_account()
     user = User(passphrase=passphrase)
     login_user(user)
@@ -57,7 +61,7 @@ def signup():
             db.session.commit()
     except Exception as err:
         print(err)
-    return render_template('mnemonic.html', passphrase=passphrase)
+    return render_template('mnemonic.html', passphrase=passphrase, address = user.wallet_address)
 
 
 @login_manager.user_loader

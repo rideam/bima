@@ -14,3 +14,4 @@ static/bootstrap/bootstrap4
 */.env
 tests/data
 tests/geckodriver.log
+tests/users.py

@@ -70,7 +70,8 @@ def mnemonic():
     """Displays the recovery passphrase"""
 
     passphrase = current_user.passphrase
-    return render_template('mnemonic.html', passphrase=passphrase)
+    address = current_user.wallet_address
+    return render_template('mnemonic.html', passphrase=passphrase, address=address)
 
 
 @main_bp.route('/logout')
