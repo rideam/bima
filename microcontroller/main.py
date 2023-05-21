@@ -22,33 +22,33 @@ def connect_wifi():
             time.sleep(2)
 
     if wifi.isconnected():
-        print('Connected')
+        print('Wifi Connected')
     else:
-        print('Timed Out')
-
+        print('Connection Timed Out')
     return wifi
 
 
 def get_data():
     temperature, humidity = dht11.get_temp_hum()
-    # soil_m = soil_moisture.get_soil_moisture()
+    soil_m = soil_moisture.get_soil_moisture()
 
     post_data = ujson.dumps({
         'temperature': temperature,
         'humidity': humidity,
-        'soil_moisture': 50,
+        'soil_moisture': soil_m,
         'farm': 'Puma Farm',
         'crop': 'Maize',
-        'user': 'IZT2EGJMVWLUMZ56FM2NK7YVKUTDCGHUQ5KNRWMJQRY4K6ZSOGU6K4J464'
+        'user': creds.wallet
     })
     request_url = creds.endpoint + '/weather'
-    # request_url = creds.endpoint + '/ping'
-    print(request_url)
     try:
+        print('Temperature: %3.1f C' % temperature)
+        print('Humidity: %3.1f %%' % humidity)
+        print('Soil Moisture: %3.1f %%' % soil_m)
         res = urequests.post(request_url, headers={'content-type': 'application/json'}, data=post_data)
-        # print(res.json)
+        print(f'Data posted successfully {res.json}')
     except Exception as e:
-        print(e)
+        print(f'\nError posting data {e}')
 
 
 def main():
@@ -60,3 +60,4 @@ def main():
 
 
 main()
+

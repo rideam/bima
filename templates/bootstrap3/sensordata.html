@@ -6,6 +6,11 @@
 
 {% block content %}
     <div class="mt-4">
+        <div style="display: flex; flex-direction: row">
+            <b>Address:</b>
+            <p style="margin-left: 1rem">{{ address }}</p>
+        </div>
+
         <h4>Sensor Data</h4>
 
         <canvas id="chart" height="400" style="width: 100%"></canvas>

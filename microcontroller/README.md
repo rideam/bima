@@ -16,5 +16,6 @@ Replace the credentials in `creds.py` with your own
 ```python
 ssid='your_wifi_ssid'
 pwd='your_password'
-endpoint='url_where_app_is_deployed eg https://playground.com'
+endpoint='url_where_app_is_deployed'
+wallet='farmer_wallet_address'
 ```

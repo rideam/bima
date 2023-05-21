@@ -1,15 +1,17 @@
-from locust import HttpUser, task, between
+from locust import HttpUser, task
+
 import env
+import users
 
 
 class TestUser(HttpUser):
-    wait_time = between(1, 5)
+    # wait_time = between(1, 5)
     host = env.host
 
-    @task(1)
-    def index(self):
-        self.client.get("/login")
+    def on_start(self):
+        self.user = users.users.pop()
 
-    @task(2)
-    def farm_data(self):
-        self.client.get("/farmdata?farm=puma")
+    @task(1)
+    def transactionstest(self):
+        self.client.post("/transactiontest", json=self.user )
+

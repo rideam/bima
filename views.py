@@ -60,7 +60,8 @@ def sensordata():
         .all()
     return render_template(
         'sensordata.html',
-        farm_weather_data=[f.as_dict() for f in farm_weather_data]
+        farm_weather_data=[f.as_dict() for f in farm_weather_data],
+        address=current_user.public_key
     )
 
 

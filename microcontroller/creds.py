@@ -1,3 +1,4 @@
 ssid=''
 pwd=''
 endpoint=''
+wallet=''
