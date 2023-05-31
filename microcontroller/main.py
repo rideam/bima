@@ -8,6 +8,7 @@ import ujson
 
 
 def connect_wifi():
+    """connect to Wifi"""
     wifi = network.WLAN(network.STA_IF)
     wifi.active(True)
     wifi.connect(creds.ssid, creds.pwd)
@@ -29,6 +30,7 @@ def connect_wifi():
 
 
 def get_data():
+    """Get data from sensors """
     temperature, humidity = dht11.get_temp_hum()
     soil_m = soil_moisture.get_soil_moisture()
 
@@ -46,7 +48,7 @@ def get_data():
         print('Humidity: %3.1f %%' % humidity)
         print('Soil Moisture: %3.1f %%' % soil_m)
         res = urequests.post(request_url, headers={'content-type': 'application/json'}, data=post_data)
-        print(f'Data posted successfully {res.json}')
+        print(f'\nData posted successfully')
     except Exception as e:
         print(f'\nError posting data {e}')
 

@@ -6,27 +6,46 @@ import settings
 
 
 def algod_client():
-    algod_address = settings.algod_api
-    algod_token = settings.algod_api_key
-    headers = {
-        "X-API-Key": algod_token,
-    }
-    return algod.AlgodClient(algod_token, algod_address, headers)
+    """ Setup AlgoClient to handle requests to Algorand network
+    :return: AlgodClient
+    """
+    return algod.AlgodClient(
+        algod_token=settings.algod_api_key,
+        algod_address=settings.algod_api,
+        headers={
+            "X-API-Key": settings.algod_api_key,
+        }
+    )
 
 
 def create_account():
+    """ Create user wallet account
+    :return: mnemonic
+    """
     private_key, address = account.generate_account()
     return mnemonic.from_private_key(private_key)
 
 
 def get_balance(address):
+    """ Get wallet's Algo balance. Divide by microalgo value because its the default unit for account balance.
+    :param  address - Wallet address
+    :return: balance - Algo balance
+    """
     account_info = algod_client().account_info(address)
     balance = account_info.get('amount') / microalgos_to_algos_ratio
     return balance
 
 
 def send_txn(sender, quantity, receiver, note, sk):
-    """Create and sign a transaction. Return transaction status and transaction id"""
+    """Create and sign a transaction. Return transaction status and transaction id
+    :param sender: address of sender
+           quantity: amount
+           receiver: address of receiver
+           note: transaction data
+           sk: signing key
+    :return transaction status
+            transaction id
+    """
     quantity = int(quantity * microalgos_to_algos_ratio)
     params = algod_client().suggested_params()
     note = note.encode()

@@ -17,7 +17,6 @@ main_bp = Blueprint(
 def index():
     """Home page to display account details"""
     balance = current_user.get_balance()
-
     current_user.wallet_address = current_user.public_key
     return render_template(
         'index.html',
@@ -30,7 +29,6 @@ def index():
 @login_required
 def enrol():
     """Joining a policy"""
-
     return render_template(
         'enrol.html',
         signature=f"Signed by {current_user.public_key}"
@@ -41,7 +39,6 @@ def enrol():
 @login_required
 def payouts():
     """Payouts received"""
-
     pay_outs = Payout.query.filter_by(farmer_id=current_user.public_key) \
         .join(Policy, Policy.id == Payout.policy_id) \
         .add_columns(Policy.name) \
@@ -54,7 +51,6 @@ def payouts():
 @login_required
 def sensordata():
     """Payment form for transactions"""
-
     farm_weather_data = Weather.query.filter_by(user=current_user.public_key) \
         .order_by(desc(Weather.created_at)).limit(100) \
         .all()
@@ -69,7 +65,6 @@ def sensordata():
 @login_required
 def mnemonic():
     """Displays the recovery passphrase"""
-
     passphrase = current_user.passphrase
     address = current_user.wallet_address
     return render_template('mnemonic.html', passphrase=passphrase, address=address)
@@ -79,6 +74,5 @@ def mnemonic():
 @login_required
 def logout():
     """User log-out logic"""
-
     logout_user()
     return redirect(url_for('auth_bp.login'))

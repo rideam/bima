@@ -32,13 +32,16 @@ class Conditions(Enum):
 
 @data_bp.route('/ping', methods=['POST', 'GET'])
 def ping():
+    """Ping API to make sure it is running successfully"""
     return jsonify('API running successfully')
 
 
 @data_bp.route('/weather', methods=['POST', 'GET'])
 def add_weather_data():
+    """Receive weather data and store it on chain
+    Trigger payout if strike conditions are met
+    """
     admin = User(settings.account_one_memonic)
-
     if request.method == 'POST':
         data = request.get_json()
         weather_dict = {
@@ -103,10 +106,8 @@ def add_weather_data():
         if trigger_payout:
             success, txid = admin.send(user_policy.coverage_amount, user.wallet_address,
                                        f'Paid by {admin.public_key}')
-
             # print(success)
             # print(f'https://goalseeker.purestake.io/algorand/testnet/transaction/{txid}')
-
             if success:
                 pyt_dict = {
                     'farmer_id': user.wallet_address,
@@ -117,7 +118,6 @@ def add_weather_data():
                 payout = Payout(**pyt_dict)
                 db.session.add(payout)
                 db.session.commit()
-
         return jsonify(weather_rec.as_dict())
 
     elif request.method == 'GET':
@@ -127,6 +127,12 @@ def add_weather_data():
 
 @data_bp.route('/policies', methods=['POST', 'GET', 'DELETE'])
 def policies():
+    """
+     Get all policies
+     Allow farmer to join policy
+     Allow farmer to cancel their policy
+    :return:
+    """
     if request.method == 'GET':
         # Get all policy records
         policy_recs = Policy.query.all()
@@ -201,30 +207,30 @@ def policies():
         })
 
 
-@data_bp.route('/mypolicies', methods=['POST', 'GET', 'DELETE'])
+@data_bp.route('/mypolicies', methods=['GET'])
 def mypolicies():
+    """Get current user policies"""
     if request.method == 'GET':
         # policy_recs = Policy.query.all()
         user = User.query.filter_by(wallet_address=current_user.public_key).first()
         user_policies = Policy.query.filter(Policy.farmers.contains(user)).all()
-
-        return jsonify([{**policy.as_dict(),
-                         'strike_event': policy.strike_event[0].desc,
-                         'myPolicy': policy.my_policy(current_user.public_key),
-                         'policy_blockchain_url': policy.policy_onchain(current_user.public_key),
-                         'isPremiumPaid': policy.is_premium_paid(current_user.public_key) != '',
-                         'premium_blockchain_url': policy.is_premium_paid(current_user.public_key)}
-                        for policy in user_policies]
-                       )
+        return jsonify(
+            [{**policy.as_dict(),
+              'strike_event': policy.strike_event[0].desc,
+              'myPolicy': policy.my_policy(current_user.public_key),
+              'policy_blockchain_url': policy.policy_onchain(current_user.public_key),
+              'isPremiumPaid': policy.is_premium_paid(current_user.public_key) != '',
+              'premium_blockchain_url': policy.is_premium_paid(current_user.public_key)}
+             for policy in user_policies]
+        )
 
 
 @data_bp.route('/paypremium', methods=['POST'])
 def paypremium():
+    """Process premium payments"""
     if request.method == 'POST':
         policy_id = request.json
-
         policy = Policy.query.filter_by(id=int(policy_id)).first()
-
         policy_details_dict = {
             'policy': policy.name,
             'description': policy.description,
@@ -234,7 +240,6 @@ def paypremium():
             'signature': f'Paid by {current_user.public_key}',
             'month_year': f'{datetime.datetime.now().month}-{datetime.datetime.now().year}'
         }
-
         success, txid = current_user.send(policy.premium, policy.receiver, json.dumps(policy_details_dict))
 
         if success:
@@ -248,7 +253,6 @@ def paypremium():
             payment = PremiumPayments(**pymt_dict)
             db.session.add(payment)
             db.session.commit()
-
             return jsonify({
                 "msg": "Payment success",
                 "class": "alert-success",
@@ -263,6 +267,7 @@ def paypremium():
 
 @data_bp.route('/farmdata', methods=['GET'])
 def farmdata():
+    """Get farm data. Need to pass a farm name query parameter"""
     try:
         farm = request.args['farm']
         try:

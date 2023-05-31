@@ -38,8 +38,12 @@ db.init_app(app)
 migrate = Migrate(app, db)
 
 
+# ------------------------------------------------------
+# UTILITY FUNCTIONS TO SUPPORT DEPLOYMENT ON RENDER
+# ------------------------------------------------------
+
 def check_db_init():
-    # Check if the database needs to be initialized
+    """Check if the database needs to be initialized"""
     engine = sa.create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
     inspector = sa.inspect(engine)
     if not inspector.has_table("user"):
@@ -52,7 +56,7 @@ def check_db_init():
 
 
 def configure_logging():
-    # Logging Configuration
+    """Logging Configuration"""
     if app.config['LOG_WITH_GUNICORN']:
         gunicorn_error_logger = logging.getLogger('gunicorn.error')
         app.logger.handlers.extend(gunicorn_error_logger.handlers)
@@ -69,7 +73,6 @@ def configure_logging():
 
     # Remove the default logger configured by Flask
     app.logger.removeHandler(default_handler)
-
     app.logger.info('Starting the Bima Insurance app...')
 
 
@@ -82,11 +85,13 @@ def register_cli_commands(app):
         echo('Initialized the database!')
 
 
+# ------------------------------------------------------
+# ADMIN Portal Views
+# ------------------------------------------------------
+
 @auth.verify_password
 def verify_password(username, password):
-    """ Verify admin username and password for the admin page
-    """
-
+    """ Verify admin username and password for the admin page """
     if username in users and \
             check_password_hash(users.get(username), password):
         return username
@@ -96,6 +101,7 @@ login_required_view = auth.login_required(lambda: None)
 
 
 def is_authenticated():
+    """Secure admin routes"""
     try:
         return login_required_view() is None
     except HTTPException:
@@ -120,7 +126,6 @@ class AuthException(HTTPException):
 class MyAdminIndexView(AdminIndexView):
 
     def is_accessible(self):
-
         if not is_authenticated():
             raise AuthException('Not authenticated.')
         else:
@@ -143,7 +148,6 @@ class PolicyView(ModelView):
 
 class EventView(ModelView):
     column_hide_backrefs = False
-
     form_choices = {
         'temperature_condition': [
             ('>', 'Greater Than'),
@@ -193,8 +197,11 @@ def make_shell_context():
     return dict(db=db, Weather=Weather)
 
 
-appauth.login_manager.init_app(app)
+# ------------------------------------------------------
+# FARMER Portal Views
+# ------------------------------------------------------
 
+appauth.login_manager.init_app(app)
 app.register_blueprint(views.main_bp)
 app.register_blueprint(appauth.auth_bp)
 app.register_blueprint(data.data_bp)

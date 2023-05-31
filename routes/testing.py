@@ -15,6 +15,7 @@ testing_bp = Blueprint(
 
 @testing_bp.route('/transactiontest', methods=['POST','GET'])
 def transactiontest():
+    """ Route to allow transaction testing. Simulates user joining policy and policy details being stored onchain """
     data = request.get_json()
     policy_details_dict = {
         'policy': 'Testing Policy',

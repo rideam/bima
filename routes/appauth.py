@@ -19,7 +19,6 @@ auth_bp = Blueprint(
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     """Login page"""
-
     if current_user.is_authenticated:
         return redirect(url_for('main_bp.index'))
 
@@ -46,7 +45,6 @@ def login():
 @auth_bp.route('/signup', methods=['GET', 'POST'])
 def signup():
     """Generates a user account and shows its passphrase"""
-
     if current_user.is_authenticated:
         return redirect(url_for('main_bp.index'))
 

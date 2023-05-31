@@ -12,6 +12,7 @@ db = SQLAlchemy()
 
 
 class Role(db.Model):
+    """User role eg farmer, admin"""
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(80), unique=True)
     description = db.Column(db.String(255))
@@ -21,6 +22,7 @@ class Role(db.Model):
 
 
 class Farm(db.Model):
+    """Farm details model """
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(255), unique=True)
 
@@ -30,7 +32,6 @@ class Farm(db.Model):
 
 class User(db.Model, UserMixin):
     """User account model"""
-
     wallet_address = db.Column(db.String(255), primary_key=True)
     roles = db.relationship('Role', secondary="roles_users",
                             backref=db.backref('users', lazy='dynamic'))
@@ -52,7 +53,7 @@ class User(db.Model, UserMixin):
         return address_from_private_key(mnemonic.to_private_key(self.passphrase))
 
     def get_balance(self):
-        """Returns user balance, in algos"""
+        """Returns user balance, in Algos"""
         return get_balance(self.public_key)
 
     def send(self, quantity, receiver, note):
@@ -64,6 +65,7 @@ class User(db.Model, UserMixin):
 
 
 class Weather(db.Model):
+    """Weather data model"""
     __tablename__ = 'weather'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -81,6 +83,7 @@ class Weather(db.Model):
         return '<Weather %r>' % (self.id)
 
     def as_dict(self):
+        """Get a weather record as a dictionary"""
         result = {c.name: getattr(self, c.name) for c in self.__table__.columns}
         for c in self.__table__.columns:
             if isinstance(c.type, db.DateTime) and getattr(self, c.name) is not None:
@@ -89,6 +92,7 @@ class Weather(db.Model):
 
 
 class Event(db.Model):
+    """Strike event model"""
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     temperature = db.Column(db.Float, nullable=False)
@@ -100,6 +104,7 @@ class Event(db.Model):
     soil_moisture_condition = db.Column(db.String(100), nullable=True)
 
     def as_dict(self):
+        """Dictionary representation of the model"""
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
     def __str__(self):
@@ -107,12 +112,14 @@ class Event(db.Model):
 
     @property
     def desc(self):
+        """Short of the event conditions (Human readable form)"""
         return f'Temp {self.temperature_condition} {self.temperature} C; ' \
                f'Humidity {self.humidity_condition} {self.humidity}%; ' \
                f'Moisture {self.soil_moisture_condition} {self.soil_moisture} %'
 
 
 class PremiumPayments(db.Model):
+    """Premium payments model"""
     id = db.Column(db.Integer(), primary_key=True)
     farmer_id = db.Column(db.String(255), db.ForeignKey('user.wallet_address'))
     policy_id = db.Column(db.Integer(), db.ForeignKey('policy.id'))
@@ -121,10 +128,12 @@ class PremiumPayments(db.Model):
     blockchain_url = db.Column(db.Text)
 
     def as_dict(self):
+        """Dictionary representation of the model"""
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class Payout(db.Model):
+    """Payout model"""
     id = db.Column(db.Integer(), primary_key=True)
     farmer_id = db.Column(db.String(255), db.ForeignKey('user.wallet_address'))
     policy_id = db.Column(db.Integer(), db.ForeignKey('policy.id'))
@@ -134,6 +143,7 @@ class Payout(db.Model):
     blockchain_url = db.Column(db.String(255))
 
     def as_dict(self):
+        """Dictionary representation of the model"""
         result = {c.name: getattr(self, c.name) for c in self.__table__.columns}
         for c in self.__table__.columns:
             if isinstance(c.type, db.DateTime) and getattr(self, c.name) is not None:
@@ -142,6 +152,7 @@ class Payout(db.Model):
 
 
 class Policy(db.Model):
+    """Policy model"""
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text, nullable=False)
@@ -156,6 +167,7 @@ class Policy(db.Model):
                               backref=db.backref('policies', lazy='dynamic'))
 
     def as_dict(self):
+        """Dictionary representation of the model"""
         # return {c.name: getattr(self, c.name) for c in self.__table__.columns}
         result = {c.name: getattr(self, c.name) for c in self.__table__.columns}
         for c in self.__table__.columns:
@@ -164,9 +176,11 @@ class Policy(db.Model):
         return result
 
     def is_valid(self, date, farmer_id):
+        """Check validity of policy eg date range and status of premium payment"""
         return self.start_date <= date <= self.end_date and self.is_premium_paid(farmer_id)
 
     def my_policy(self, address):
+        """Check if current wallet address is part of policy"""
         result = False
         for f in self.farmers:
             if f.wallet_address == address:
@@ -174,6 +188,7 @@ class Policy(db.Model):
         return result
 
     def is_premium_paid(self, farmer_id):
+        """Check premium payment status for user"""
         is_paid = PremiumPayments.query.filter_by(farmer_id=farmer_id,
                                                   policy_id=self.id,
                                                   month=datetime.datetime.now().month,
@@ -183,6 +198,7 @@ class Policy(db.Model):
         return ''
 
     def policy_onchain(self, farmer_id):
+        """Return the blockchain address for the policy information for the current farmer"""
         policy_farmer_rec = PoliciesFarmers.query.filter_by(farmer_id=farmer_id,
                                                             policy_id=self.id).first()
         if policy_farmer_rec.blockchain_url:
@@ -194,6 +210,7 @@ class Policy(db.Model):
 
 
 class PoliciesEvents(db.Model):
+    """Link between policies and strike events"""
     __tablename__ = "policies_events"
 
     id = db.Column(db.Integer(), primary_key=True)
@@ -201,10 +218,12 @@ class PoliciesEvents(db.Model):
     event_id = db.Column(db.Integer(), db.ForeignKey('event.id', ondelete='CASCADE'))
 
     def as_dict(self):
+        """Dictionary representation of the model"""
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class PoliciesFarmers(db.Model):
+    """Link between policies and farmers"""
     __tablename__ = "policies_users"
 
     id = db.Column(db.Integer(), primary_key=True)
@@ -213,10 +232,12 @@ class PoliciesFarmers(db.Model):
     blockchain_url = db.Column(db.String(255), nullable=True)
 
     def as_dict(self):
+        """Dictionary representation of the model"""
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class RolesUsers(db.Model):
+    """Link between roles and users"""
     __tablename__ = "roles_users"
 
     id = db.Column(db.Integer(), primary_key=True)
@@ -224,10 +245,12 @@ class RolesUsers(db.Model):
     user_wallet_address = db.Column(db.String(255), db.ForeignKey('user.wallet_address', ondelete='CASCADE'))
 
     def as_dict(self):
+        """Dictionary representation of the model"""
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class FarmsUsers(db.Model):
+    """Link between farmer and system user"""
     __tablename__ = "farms_users"
 
     id = db.Column(db.Integer(), primary_key=True)
@@ -235,4 +258,5 @@ class FarmsUsers(db.Model):
     user_wallet_address = db.Column(db.String(255), db.ForeignKey('user.wallet_address', ondelete='CASCADE'))
 
     def as_dict(self):
+        """Dictionary representation of the model"""
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
