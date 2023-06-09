@@ -102,7 +102,7 @@ def add_weather_data():
                     condition_pass['soil_moisture'] = True
 
         trigger_payout = all(value for value in condition_pass.values())
-        print(f'Trigger payout {trigger_payout}')
+        # print(f'Trigger payout {trigger_payout}')
         if trigger_payout:
             success, txid = admin.send(user_policy.coverage_amount, user.wallet_address,
                                        f'Paid by {admin.public_key}')

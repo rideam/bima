@@ -12,7 +12,7 @@ class PolicyListTest(unittest.TestCase):
         # options.add_argument('headless')
         self.driver = webdriver.Chrome(options=options)
 
-    def test_login(self):
+    def test_policy_list(self):
         driver = self.driver
         driver.get(f"{env.host}/login")
         driver.implicitly_wait(0.5)
