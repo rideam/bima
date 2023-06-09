@@ -124,3 +124,23 @@ def payout_test():
                                    f'Paid by {admin.public_key}')
         payout_success = success
     return jsonify({ 'payout_success': payout_success})
+
+
+@testing_bp.route('/weatherdatatest', methods=['POST','GET'])
+def weather_data_test():
+    """ Route to allow simulating microcontrollers sending data and the data being stored on chain """
+    admin = User(settings.account_one_memonic)
+
+    data = request.get_json()
+    weather_dict = {
+        "temperature": data["temperature"],
+        "humidity": data["humidity"],
+        "soil_moisture": data["soil_moisture"],
+        "farm": data["farm"],
+        "crop": data["crop"],
+        "user": data["wallet"]
+    }
+
+    # send data to chain
+    success, txid = admin.send(0, data["wallet"],json.dumps(weather_dict))
+    return jsonify(success)
