@@ -16,21 +16,20 @@ testing_bp = Blueprint(
     __name__
 )
 
+
 class Conditions(Enum):
     GT = '>'
     LS = '<'
     EQ = '='
 
 
-
-
-
-@testing_bp.route('/joinpolicytest', methods=['POST','GET'])
+@testing_bp.route('/joinpolicytest', methods=['POST', 'GET'])
 def user_joining_policy_test():
     """ Route to allow transaction testing. Simulates user joining policy and policy details being stored onchain.
         Also allows testing how much time it takes to send data to the Algorand blockchain.
      """
 
+    start_time = time.time()
     data = request.get_json()
     policy_details_dict = {
         'policy': 'Testing Policy',
@@ -41,7 +40,6 @@ def user_joining_policy_test():
         'signature': f'Joined by {data["wallet"]}'
     }
 
-    start_time = time.time()
     success, txid = send_txn(
         address_from_private_key(mnemonic.to_private_key(data["passphrase"])),
         0,
@@ -58,9 +56,10 @@ def user_joining_policy_test():
     })
 
 
-@testing_bp.route('/payouttest', methods=['POST','GET'])
+@testing_bp.route('/payouttest', methods=['POST', 'GET'])
 def payout_test():
     """ Route to allow testing of how long payouts take to be issued """
+    start_time = time.time()
     admin = User(settings.account_one_memonic)
 
     data = request.get_json()
@@ -83,14 +82,13 @@ def payout_test():
     }
 
     # send data to chain
-    admin.send(0, data["wallet"],json.dumps(weather_dict))
+    admin.send(0, data["wallet"], json.dumps(weather_dict))
 
     condition_pass = {
         'temperature': False,
         'humidity': False,
         'soil_moisture': False
     }
-
 
     # check strike conditions
     if event['temperature_condition'] == Conditions.GT.value:
@@ -123,12 +121,19 @@ def payout_test():
         success, txid = admin.send(0.1, data["wallet"],
                                    f'Paid by {admin.public_key}')
         payout_success = success
-    return jsonify({ 'payout_success': payout_success})
+
+    end_time = time.time()
+    return jsonify({
+        'status': payout_success,
+        'payout_success': payout_success,
+        'elapsed_time': end_time - start_time
+    })
 
 
-@testing_bp.route('/weatherdatatest', methods=['POST','GET'])
+@testing_bp.route('/weatherdatatest', methods=['POST', 'GET'])
 def weather_data_test():
     """ Route to allow simulating microcontrollers sending data and the data being stored on chain """
+    start_time = time.time()
     admin = User(settings.account_one_memonic)
 
     data = request.get_json()
@@ -142,5 +147,9 @@ def weather_data_test():
     }
 
     # send data to chain
-    success, txid = admin.send(0, data["wallet"],json.dumps(weather_dict))
-    return jsonify(success)
+    success, txid = admin.send(0, data["wallet"], json.dumps(weather_dict))
+    end_time = time.time()
+    return jsonify({
+        'status': success,
+        'success': success,
+        'elapsed_time': end_time - start_time})

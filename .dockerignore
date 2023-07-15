@@ -1,0 +1,10 @@
+venv
+instance
+docs
+microcontroller
+migrations
+node_modules
+tests
+package.json
+package-lock.json
+serverless.yml

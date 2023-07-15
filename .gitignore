@@ -1,6 +1,7 @@
 venv
 node_modules
 .env
+db.env
 
 application/.env
 serverless.yml
