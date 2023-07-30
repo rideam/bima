@@ -184,7 +184,7 @@ class RoleView(ModelView):
     column_hide_backrefs = True
 
 
-admin = Admin(app, name='Bima', template_mode=settings.template_mode, index_view=MyAdminIndexView())
+admin = Admin(app, name='Bima Admin', template_mode=settings.template_mode, index_view=MyAdminIndexView())
 admin.add_view(UserView(model=User, session=db.session))
 admin.add_view(RoleView(model=Role, session=db.session))
 admin.add_view(FarmView(model=Farm, session=db.session))
